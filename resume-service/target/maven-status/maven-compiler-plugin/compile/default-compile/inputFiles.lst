@@ -1,0 +1,11 @@
+E:\resume-service\src\main\java\com\placementsetu\resume\ai\AiTestController.java
+E:\resume-service\src\main\java\com\placementsetu\resume\ai\GeminiClient.java
+E:\resume-service\src\main\java\com\placementsetu\resume\ai\AiResumeParser.java
+E:\resume-service\src\main\java\com\placementsetu\resume\entity\Resume.java
+E:\resume-service\src\main\java\com\placementsetu\resume\converter\JsonMapConverter.java
+E:\resume-service\src\main\java\com\placementsetu\resume\parser\ResumeParser.java
+E:\resume-service\src\main\java\com\placementsetu\resume\service\ResumeService.java
+E:\resume-service\src\main\java\com\placementsetu\resume\ResumeApplication.java
+E:\resume-service\src\main\java\com\placementsetu\resume\controller\ResumeController.java
+E:\resume-service\src\main\java\com\placementsetu\resume\repository\ResumeRepository.java
+E:\resume-service\src\main\java\com\placementsetu\resume\dto\ResumeResponseDto.java

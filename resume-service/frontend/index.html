@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Placement Setu — Resume Upload</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; }
+    h1 { font-size: 22px; }
+    #dropzone {
+      border: 2px dashed #999; border-radius: 8px; padding: 30px;
+      text-align: center; margin-bottom: 16px;
+    }
+    button {
+      background: #2563eb; color: white; border: none; padding: 10px 18px;
+      border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    button:disabled { background: #999; }
+    pre {
+      background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px;
+      overflow-x: auto; white-space: pre-wrap;
+    }
+    #status { margin: 10px 0; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Upload Resume</h1>
+
+  <form id="uploadForm">
+    <div id="dropzone">
+      <input type="file" id="fileInput" name="file" accept=".pdf,.txt" required />
+      <p style="color:#777; font-size: 13px;">PDF or TXT file</p>
+    </div>
+    <button type="submit" id="submitBtn">Upload & Parse</button>
+  </form>
+
+  <p id="status"></p>
+  <pre id="result"></pre>
+
+  <script>
+    const API_URL = "http://localhost:8080/api/v1/resumes/upload";
+
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById("fileInput");
+      const statusEl = document.getElementById("status");
+      const resultEl = document.getElementById("result");
+      const submitBtn = document.getElementById("submitBtn");
+
+      if (!fileInput.files.length) return;
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      submitBtn.disabled = true;
+      statusEl.textContent = "Uploading and parsing...";
+      resultEl.textContent = "";
+
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: formData });
+
+        if (!res.ok) {
+          throw new Error(`Server responded with ${res.status}`);
+        }
+
+        const data = await res.json();
+        statusEl.textContent = "Done ✅";
+        resultEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        statusEl.textContent = "Something went wrong: " + err.message;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
