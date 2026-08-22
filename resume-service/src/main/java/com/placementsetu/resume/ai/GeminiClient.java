@@ -1,5 +1,7 @@
 package com.placementsetu.resume.ai;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -12,40 +14,126 @@ import java.util.Map;
 public class GeminiClient {
 
     private final RestClient restClient;
-    private final String apiKey;
+    private final ObjectMapper objectMapper;
 
-    public GeminiClient(@Value("${gemini.api.url}") String apiUrl,
-                         @Value("${gemini.api.key}") String apiKey) {
-        this.apiKey = apiKey;
-        this.restClient = RestClient.builder()
-                .baseUrl(apiUrl)
-                .build();
+    @Value("${gemini.api.key}")
+    private String apiKey;
+
+    @Value("${gemini.api.url}")
+    private String apiUrl;
+
+    public GeminiClient(
+            RestClient.Builder builder,
+            ObjectMapper objectMapper
+    ) {
+        this.restClient = builder.build();
+        this.objectMapper = objectMapper;
     }
 
     public String generateText(String prompt) {
+
+        // Request body sent to Gemini
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(
-                        Map.of("parts", List.of(
-                                Map.of("text", prompt)
-                        ))
+                        Map.of(
+                                "parts", List.of(
+                                        Map.of(
+                                                "text", prompt
+                                        )
+                                )
+                        )
                 )
         );
 
-        Map<?, ?> response = restClient.post()
-                .uri(uriBuilder -> uriBuilder.queryParam("key", apiKey).build())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(requestBody)
-                .retrieve()
-                .body(Map.class);
+        try {
 
-        return extractText(response);
-    }
+            // Call Gemini API
+            String response = restClient.post()
+                    .uri(apiUrl)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("x-goog-api-key", apiKey.trim())
+                    .body(requestBody)
+                    .retrieve()
+                    .body(String.class);
 
-    @SuppressWarnings("unchecked")
-    private String extractText(Map<?, ?> response) {
-        List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
-        Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
-        List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-        return (String) parts.get(0).get("text");
+            // Convert Gemini response String into JSON
+            JsonNode root = objectMapper.readTree(response);
+
+
+            // ========================================
+            //          GEMINI TOKEN USAGE
+            // ========================================
+
+            JsonNode usage = root.path("usageMetadata");
+
+            int promptTokens =
+                    usage.path("promptTokenCount").asInt(0);
+
+            int outputTokens =
+                    usage.path("candidatesTokenCount").asInt(0);
+
+            int thoughtsTokens =
+                    usage.path("thoughtsTokenCount").asInt(0);
+
+            int totalTokens =
+                    usage.path("totalTokenCount").asInt(0);
+
+
+            // Print token usage in Spring Boot terminal
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("         GEMINI TOKEN USAGE");
+            System.out.println("========================================");
+            System.out.println("Prompt Tokens   : " + promptTokens);
+            System.out.println("Output Tokens   : " + outputTokens);
+            System.out.println("Thought Tokens  : " + thoughtsTokens);
+            System.out.println("----------------------------------------");
+            System.out.println("Total Tokens    : " + totalTokens);
+            System.out.println("========================================");
+            System.out.println();
+
+
+            // ========================================
+            //       EXTRACT GEMINI GENERATED TEXT
+            // ========================================
+
+            JsonNode textNode = root
+                    .path("candidates")
+                    .path(0)
+                    .path("content")
+                    .path("parts")
+                    .path(0)
+                    .path("text");
+
+
+            // Check if Gemini returned valid text
+            if (textNode.isMissingNode()
+                    || textNode.asText().isBlank()) {
+
+                throw new RuntimeException(
+                        "Gemini returned no text. Full response: "
+                                + response
+                );
+            }
+
+
+            // Return only Gemini's generated text
+            return textNode.asText();
+
+
+        } catch (Exception e) {
+
+            System.err.println();
+            System.err.println("========================================");
+            System.err.println("          GEMINI API ERROR");
+            System.err.println("========================================");
+            System.err.println(e.getMessage());
+            System.err.println("========================================");
+
+            throw new RuntimeException(
+                    "Gemini AI service failed: " + e.getMessage(),
+                    e
+            );
+        }
     }
 }
