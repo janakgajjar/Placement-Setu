@@ -1,33 +1,39 @@
 package com.placementsetu.user.controller;
 
 import com.placementsetu.common.ApiResponse;
+import com.placementsetu.exception.ResourceNotFoundException;
 import com.placementsetu.security.CustomUserDetails;
-import com.placementsetu.user.dto.UpdateProfileRequest;
-import com.placementsetu.user.dto.UserProfileResponse;
-import com.placementsetu.user.service.UserService;
+import com.placementsetu.user.dto.UserSummaryResponse;
+import com.placementsetu.user.entity.User;
+import com.placementsetu.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "User", description = "Authenticated user's own profile")
+/**
+ * Role-agnostic "who am I" endpoint. Role-specific profile data (student
+ * profile, company profile, etc.) lives in their own modules.
+ */
+@Tag(name = "User", description = "Authenticated user's own account summary")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
-    @GetMapping("/profile")
-    public ApiResponse<UserProfileResponse> getProfile(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ApiResponse.success("Profile fetched successfully", userService.getProfile(principal.getId()));
-    }
+    @GetMapping("/me")
+    public ApiResponse<UserSummaryResponse> me(@AuthenticationPrincipal CustomUserDetails principal) {
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-    @PutMapping("/profile")
-    public ApiResponse<UserProfileResponse> updateProfile(
-            @AuthenticationPrincipal CustomUserDetails principal,
-            @Valid @RequestBody UpdateProfileRequest request) {
-        return ApiResponse.success("Profile updated successfully", userService.updateProfile(principal.getId(), request));
+        return ApiResponse.success("Account fetched successfully", UserSummaryResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .accountStatus(user.getAccountStatus())
+                .createdAt(user.getCreatedAt())
+                .build());
     }
 }

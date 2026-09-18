@@ -40,7 +40,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = header.substring(BEARER_PREFIX.length());
 
-        if (jwtService.isTokenValid(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (jwtService.isTokenValid(token) && !jwtService.isRefreshToken(token)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
             String email = jwtService.parseClaims(token).get("email", String.class);
             // Loaded fresh from DB (not trusted purely from JWT claims) so a mid-session
             // block/lock/role-change takes effect on the very next request.

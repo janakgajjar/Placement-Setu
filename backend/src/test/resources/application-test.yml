@@ -15,8 +15,7 @@ app:
     secret: test-secret-key-for-unit-tests-only-min-32-chars
     access-token-expiry-minutes: 15
     refresh-token-expiry-days: 7
-  security:
-    max-failed-login-attempts: 3
-    account-lock-minutes: 15
   cors:
     allowed-origins: http://localhost:5173
+  storage:
+    resume-dir: ./data/test-resumes

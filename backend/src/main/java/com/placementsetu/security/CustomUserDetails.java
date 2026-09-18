@@ -1,6 +1,6 @@
 package com.placementsetu.security;
 
-import com.placementsetu.user.entity.Role;
+import com.placementsetu.common.enums.AccountStatus;
 import com.placementsetu.user.entity.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,14 +8,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Spring Security authenticates against this wrapper, not the User entity directly.
- * Authorities are prefixed "ROLE_" for roles (Spring convention for hasRole()) — permission-level
- * authorities can be added the same way once the Permission -> GrantedAuthority mapping is needed
- * by @PreAuthorize checks in later modules.
+ * A single role enum maps to one "ROLE_X" authority (Spring's hasRole() convention).
  */
 @Getter
 public class CustomUserDetails implements UserDetails {
@@ -23,20 +21,15 @@ public class CustomUserDetails implements UserDetails {
     private final UUID id;
     private final String email;
     private final String password;
-    private final boolean enabled;
-    private final boolean accountNonLocked;
+    private final AccountStatus accountStatus;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
-        this.password = user.getPassword();
-        this.enabled = user.isActive();
-        this.accountNonLocked = !user.isAccountLocked();
-        this.authorities = user.getRoles().stream()
-                .map(Role::getName)
-                .map(name -> new SimpleGrantedAuthority("ROLE_" + name))
-                .collect(Collectors.toSet());
+        this.password = user.getPasswordHash();
+        this.accountStatus = user.getAccountStatus();
+        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override
@@ -61,7 +54,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return accountNonLocked;
+        return accountStatus != AccountStatus.SUSPENDED;
     }
 
     @Override
@@ -71,6 +64,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return accountStatus == AccountStatus.ACTIVE;
     }
 }

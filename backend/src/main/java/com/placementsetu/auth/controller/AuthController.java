@@ -1,10 +1,10 @@
 package com.placementsetu.auth.controller;
 
 import com.placementsetu.auth.dto.AuthResponse;
+import com.placementsetu.auth.dto.CompanyRegisterRequest;
 import com.placementsetu.auth.dto.LoginRequest;
-import com.placementsetu.auth.dto.PasswordDtos;
-import com.placementsetu.auth.dto.RefreshTokenRequest;
-import com.placementsetu.auth.dto.RegisterRequest;
+import com.placementsetu.auth.dto.RefreshRequest;
+import com.placementsetu.auth.dto.StudentRegisterRequest;
 import com.placementsetu.auth.service.AuthService;
 import com.placementsetu.common.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Auth", description = "Registration, login, token refresh, password/email flows")
+@Tag(name = "Auth", description = "Registration, login, token refresh")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -22,11 +22,19 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResponse response = authService.register(request);
+    @PostMapping("/register/student")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerStudent(@Valid @RequestBody StudentRegisterRequest request) {
+        AuthResponse response = authService.registerStudent(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Registration successful. Please verify your email.", response));
+                .body(ApiResponse.success("Registration successful", response));
+    }
+
+    @PostMapping("/register/company")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerCompany(@Valid @RequestBody CompanyRegisterRequest request) {
+        AuthResponse response = authService.registerCompany(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(
+                        "Registration successful. Your company is pending Officer/Admin approval.", response));
     }
 
     @PostMapping("/login")
@@ -36,33 +44,17 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<AuthResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponse>> refresh(@Valid @RequestBody RefreshRequest request) {
         AuthResponse response = authService.refresh(request.getRefreshToken());
         return ResponseEntity.ok(ApiResponse.success("Token refreshed", response));
     }
 
+    /**
+     * Stateless JWTs (see JwtService) mean there is nothing to revoke server-side —
+     * this endpoint exists for frontend/API symmetry. The client must discard both tokens.
+     */
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody RefreshTokenRequest request) {
-        authService.logout(request.getRefreshToken());
-        return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
-    }
-
-    @PostMapping("/verify-email")
-    public ResponseEntity<ApiResponse<Void>> verifyEmail(@Valid @RequestBody PasswordDtos.VerifyEmailRequest request) {
-        authService.verifyEmail(request);
-        return ResponseEntity.ok(ApiResponse.success("Email verified successfully"));
-    }
-
-    @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody PasswordDtos.ForgotPasswordRequest request) {
-        authService.forgotPassword(request);
-        return ResponseEntity.ok(ApiResponse.success(
-                "If an account exists for this email, a password reset link has been sent."));
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody PasswordDtos.ResetPasswordRequest request) {
-        authService.resetPassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Password has been reset successfully"));
+    public ResponseEntity<ApiResponse<Void>> logout() {
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully. Discard your tokens client-side."));
     }
 }

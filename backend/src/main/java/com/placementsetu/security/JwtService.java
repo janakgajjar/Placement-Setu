@@ -1,5 +1,6 @@
 package com.placementsetu.security;
 
+import com.placementsetu.common.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -8,22 +9,26 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
- * Issues short-lived JWT access tokens (stateless, verified on every request via JwtFilter)
- * and opaque, DB-backed refresh tokens (Improvement #3 from the blueprint: 15-min access token
- * + 7-day refresh token, instead of one long-lived JWT).
+ * Issues stateless JWTs for both access and refresh tokens. The approved
+ * schema has no refresh_tokens table, so unlike the previous identity
+ * design there is no server-side session store: a refresh token is simply a
+ * longer-lived JWT distinguished by its "type" claim and verified purely by
+ * signature + expiry. This means logout/rotation cannot revoke a token
+ * early — acceptable for the MVP, called out here for anyone hardening this
+ * later (e.g. by reintroducing a denylist table).
  */
 @Service
 public class JwtService {
+
+    private static final String CLAIM_TYPE = "type";
+    private static final String TYPE_ACCESS = "access";
+    private static final String TYPE_REFRESH = "refresh";
 
     private final SecretKey signingKey;
     private final long accessTokenExpiryMinutes;
@@ -38,14 +43,26 @@ public class JwtService {
         this.refreshTokenExpiryDays = refreshTokenExpiryDays;
     }
 
-    public String generateAccessToken(UUID userId, String email, Set<String> roles) {
+    public String generateAccessToken(UUID userId, String email, UserRole role) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("email", email)
-                .claim("roles", roles)
+                .claim("role", role.name())
+                .claim(CLAIM_TYPE, TYPE_ACCESS)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(accessTokenExpiryMinutes, ChronoUnit.MINUTES)))
+                .signWith(signingKey)
+                .compact();
+    }
+
+    public String generateRefreshToken(UUID userId) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+                .subject(userId.toString())
+                .claim(CLAIM_TYPE, TYPE_REFRESH)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(refreshTokenExpiryDays, ChronoUnit.DAYS)))
                 .signWith(signingKey)
                 .compact();
     }
@@ -67,27 +84,15 @@ public class JwtService {
         }
     }
 
+    public boolean isRefreshToken(String token) {
+        try {
+            return TYPE_REFRESH.equals(parseClaims(token).get(CLAIM_TYPE, String.class));
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public UUID extractUserId(String token) {
         return UUID.fromString(parseClaims(token).getSubject());
-    }
-
-    /** Raw, unhashed refresh token — caller hashes it before persisting (see AuthServiceImpl). */
-    public String generateRawRefreshToken() {
-        byte[] randomBytes = new byte[64];
-        new SecureRandom().nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-    }
-
-    public Instant refreshTokenExpiry() {
-        return Instant.now().plus(refreshTokenExpiryDays, ChronoUnit.DAYS);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Set<String> extractRoles(String token) {
-        Object roles = parseClaims(token).get("roles");
-        if (roles instanceof java.util.List<?> list) {
-            return list.stream().map(String::valueOf).collect(Collectors.toSet());
-        }
-        return Set.of();
     }
 }
