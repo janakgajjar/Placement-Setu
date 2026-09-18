@@ -38,14 +38,13 @@ app:
     secret: ${JWT_SECRET:CHANGE_ME_LOCAL_DEV_ONLY_MIN_32_CHARACTERS_LONG}
     access-token-expiry-minutes: 15
     refresh-token-expiry-days: 7
-  security:
-    max-failed-login-attempts: 5
-    account-lock-minutes: 15
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  storage:
+    resume-dir: ${RESUME_STORAGE_DIR:./data/resumes}
 
 # --- Gemini AI (Resume Service AI parsing) ---
 gemini:
   api:
-    key: ${GEMINI_API_KEY:}
+    key: Your_Actual_Key
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
