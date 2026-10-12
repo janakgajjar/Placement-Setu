@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-/** Foundation entity for Section 21 item 25 (audit logs). Not yet wired into every write path. */
 @Getter
 @Setter
 @Builder

@@ -65,7 +65,7 @@ public class StudentController {
         studentProfileService.removeProject(principal.getId(), projectId);
         return ApiResponse.success("Project removed successfully");
     }
-
+    
     @PostMapping("/certifications")
     public ResponseEntity<ApiResponse<CertificationResponse>> addCertification(
             @AuthenticationPrincipal CustomUserDetails principal,
