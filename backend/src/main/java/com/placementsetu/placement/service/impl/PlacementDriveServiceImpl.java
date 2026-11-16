@@ -32,6 +32,9 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
     private final PlacementDriveRepository driveRepository;
     private final DriveSkillRepository driveSkillRepository;
     private final SkillRepository skillRepository;
+    private final com.placementsetu.company.repository.CompanyRepository companyRepository;
+    private final com.placementsetu.notification.service.NotificationService notificationService;
+    private final com.placementsetu.policy.service.PlacementPolicyService policyService;
 
     // ─────────────────────────────────────────────────────────────────────────
     // POST /companies/me/drives
@@ -55,8 +58,14 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
                 .graduationYear(request.getGraduationYear())
                 .registrationStart(request.getRegistrationStart())
                 .registrationEnd(request.getRegistrationEnd())
+                .driveType(request.getDriveType() != null ? request.getDriveType() : "FULL_TIME")
+                .stipend(request.getStipend())
+                .maximumAge(request.getMaximumAge())
+                .isDreamOffer(request.getIsDreamOffer() != null ? request.getIsDreamOffer() : false)
                 .status(DriveStatus.DRAFT)
                 .build();
+
+        policyService.validatePaidInternshipPolicy(drive);
 
         drive = driveRepository.save(drive);
 
@@ -149,6 +158,10 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         drive.setStatus(DriveStatus.PUBLISHED);
         drive = driveRepository.save(drive);
 
+        companyRepository.findById(companyId).ifPresent(c -> {
+            notificationService.notifyDrivePublished(drive.getId(), drive.getJobTitle(), c.getCompanyName(), c.getUserId());
+        });
+
         return toResponse(drive, getSkillNames(drive.getId()));
     }
 
@@ -168,6 +181,10 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
 
         drive.setStatus(DriveStatus.CLOSED);
         drive = driveRepository.save(drive);
+
+        companyRepository.findById(companyId).ifPresent(c -> {
+            notificationService.notifyDriveClosed(drive.getId(), drive.getJobTitle(), c.getCompanyName(), c.getUserId());
+        });
 
         return toResponse(drive, getSkillNames(drive.getId()));
     }

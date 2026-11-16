@@ -33,6 +33,7 @@ public class CompanyApprovalController {
 
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
+    private final com.placementsetu.notification.service.NotificationService notificationService;
 
     @GetMapping("/pending")
     public ApiResponse<List<CompanyProfileResponse>> pending() {
@@ -67,6 +68,13 @@ public class CompanyApprovalController {
 
         user.setAccountStatus(status);
         userRepository.save(user);
+
+        if (status == AccountStatus.ACTIVE) {
+            notificationService.notifyCompanyApproved(user.getId(), company.getCompanyName());
+        } else if (status == AccountStatus.REJECTED) {
+            notificationService.notifyCompanyRejected(user.getId(), company.getCompanyName(), "Application does not meet current verification requirements.");
+        }
+
         return toResponse(company, user);
     }
 

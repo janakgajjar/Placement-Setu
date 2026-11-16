@@ -73,6 +73,9 @@ public class StudentProfile {
     @Column(name = "github_url")
     private String githubUrl;
 
+    @Column(name = "date_of_birth")
+    private java.time.LocalDate dateOfBirth;
+
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "profile_status", nullable = false, columnDefinition = "profile_status")

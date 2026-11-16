@@ -71,6 +71,20 @@ public class PlacementDrive {
     @Column(name = "registration_end", nullable = false)
     private LocalDateTime registrationEnd;
 
+    @Column(name = "drive_type", length = 50)
+    @Builder.Default
+    private String driveType = "FULL_TIME"; // FULL_TIME, PAID_INTERNSHIP, INTERNSHIP_TO_PPO
+
+    @Column(name = "stipend")
+    private BigDecimal stipend;
+
+    @Column(name = "maximum_age")
+    private Integer maximumAge;
+
+    @Column(name = "is_dream_offer")
+    @Builder.Default
+    private Boolean isDreamOffer = false;
+
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "status", nullable = false, columnDefinition = "drive_status")
