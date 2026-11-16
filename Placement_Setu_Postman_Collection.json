@@ -1,0 +1,669 @@
+{
+  "info": {
+    "name": "Placement-Setu API",
+    "_postman_id": "placement-setu-v1",
+    "description": "Complete API collection for Placement-Setu platform.\nBase URL: http://localhost:8080\nSwagger UI: http://localhost:8080/swagger-ui.html\n\nHOW TO USE:\n1. Import this collection in Postman\n2. Create Environment 'Placement-Setu Local' with variable: baseUrl = http://localhost:8080\n3. Run requests in order shown (Auth first, then others)\n4. Tokens are auto-saved by the login/register requests using pm.environment.set()",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "studentToken", "value": "", "type": "string" },
+    { "key": "companyToken", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "officerToken", "value": "", "type": "string" },
+    { "key": "studentId", "value": "", "type": "string" },
+    { "key": "companyId", "value": "", "type": "string" },
+    { "key": "driveId", "value": "", "type": "string" },
+    { "key": "skillId", "value": "", "type": "string" },
+    { "key": "projectId", "value": "", "type": "string" },
+    { "key": "certificationId", "value": "", "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "🔐 1. Auth",
+      "item": [
+
+        {
+          "name": "Register Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('studentToken', res.data.accessToken);",
+                  "  console.log('Student token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student1@test.com\",\n  \"password\": \"Passw0rd1\",\n  \"fullName\": \"Test Student\",\n  \"phone\": \"9876543210\",\n  \"course\": \"MCA\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register/student", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register","student"] }
+          }
+        },
+
+        {
+          "name": "Register Company",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('companyToken', res.data.accessToken);",
+                  "  console.log('Company token saved (PENDING — needs approval first)');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"acme@test.com\",\n  \"password\": \"Passw0rd1\",\n  \"companyName\": \"Acme Corp\",\n  \"gstin\": \"22AAAAA0000A1Z5\",\n  \"address\": \"123 Main St, Ahmedabad\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register/company", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register","company"] }
+          }
+        },
+
+        {
+          "name": "Login — Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('studentToken', res.data.accessToken);",
+                  "  console.log('Student token saved:', res.data.accessToken.substring(0,20)+'...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student1@test.com\",\n  \"password\": \"Passw0rd1\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          }
+        },
+
+        {
+          "name": "Login — Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('adminToken', res.data.accessToken);",
+                  "  console.log('Admin token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@placementsetu.local\",\n  \"password\": \"ChangeMe@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          }
+        },
+
+        {
+          "name": "Login — Company (after approval)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('companyToken', res.data.accessToken);",
+                  "  console.log('Company token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"acme@test.com\",\n  \"password\": \"Passw0rd1\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          }
+        },
+
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"PASTE_REFRESH_TOKEN_HERE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","refresh"] }
+          }
+        },
+
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","logout"] }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🎓 2. Student",
+      "item": [
+
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/students/me", "host": ["{{baseUrl}}"], "path": ["api","v1","students","me"] }
+          }
+        },
+
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test Student Updated\",\n  \"phone\": \"9876543210\",\n  \"gender\": \"MALE\",\n  \"course\": \"MCA\",\n  \"institution\": \"Gujarat Vidyapith\",\n  \"graduationYear\": 2026,\n  \"cgpa\": 8.5,\n  \"backlogs\": 0,\n  \"address\": \"Ahmedabad, Gujarat\",\n  \"linkedinUrl\": \"https://linkedin.com/in/teststudent\",\n  \"githubUrl\": \"https://github.com/teststudent\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/students/me", "host": ["{{baseUrl}}"], "path": ["api","v1","students","me"] }
+          }
+        },
+
+        {
+          "name": "Add Skill",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// NOTE: skillId must be a valid UUID from the 'skills' table.",
+                  "// Get skill IDs from pgAdmin: SELECT id, name FROM skills;"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skillId\": \"PASTE_SKILL_UUID_HERE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/students/me/skills", "host": ["{{baseUrl}}"], "path": ["api","v1","students","me","skills"] }
+          }
+        },
+
+        {
+          "name": "Remove Skill",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/me/skills/{{skillId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","students","me","skills","{{skillId}}"]
+            }
+          }
+        },
+
+        {
+          "name": "Add Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('projectId', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"E-Commerce Website\",\n  \"description\": \"Built a full-stack e-commerce app using React and Spring Boot\",\n  \"projectUrl\": \"https://github.com/teststudent/ecommerce\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/students/me/projects", "host": ["{{baseUrl}}"], "path": ["api","v1","students","me","projects"] }
+          }
+        },
+
+        {
+          "name": "Remove Project",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/me/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","students","me","projects","{{projectId}}"]
+            }
+          }
+        },
+
+        {
+          "name": "Add Certification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('certificationId', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AWS Certified Cloud Practitioner\",\n  \"issuingOrganization\": \"Amazon Web Services\",\n  \"issueDate\": \"2025-06-15\",\n  \"credentialUrl\": \"https://aws.amazon.com/certification/\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/students/me/certifications", "host": ["{{baseUrl}}"], "path": ["api","v1","students","me","certifications"] }
+          }
+        },
+
+        {
+          "name": "Remove Certification",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/students/me/certifications/{{certificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","students","me","certifications","{{certificationId}}"]
+            }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "📄 3. Resume",
+      "item": [
+
+        {
+          "name": "Upload Resume (PDF/DOCX/TXT)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Select your PDF, DOCX, or TXT resume file"
+                }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/resumes/me", "host": ["{{baseUrl}}"], "path": ["api","v1","resumes","me"] }
+          }
+        },
+
+        {
+          "name": "Get My Resume",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/resumes/me", "host": ["{{baseUrl}}"], "path": ["api","v1","resumes","me"] }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🏢 4. Company Profile",
+      "item": [
+
+        {
+          "name": "Get My Company Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{companyToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/companies/me/profile", "host": ["{{baseUrl}}"], "path": ["api","v1","companies","me","profile"] }
+          }
+        },
+
+        {
+          "name": "Update Company Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{companyToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Acme Corp Pvt Ltd\",\n  \"phone\": \"9876543210\",\n  \"website\": \"https://acme.com\",\n  \"address\": \"456 Business Park, Ahmedabad, Gujarat 380001\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/companies/me/profile", "host": ["{{baseUrl}}"], "path": ["api","v1","companies","me","profile"] }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "📢 5. Placement Drives",
+      "item": [
+
+        {
+          "name": "Create Drive (DRAFT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('driveId', res.data.id);",
+                  "  console.log('Drive ID saved:', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{companyToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobTitle\": \"Software Engineer\",\n  \"description\": \"Java/Spring Boot backend developer role for our core platform team.\",\n  \"location\": \"Ahmedabad, Gujarat\",\n  \"ctc\": 8.5,\n  \"vacancies\": 10,\n  \"minimumCgpa\": 7.0,\n  \"maximumBacklogs\": 2,\n  \"requiredCourse\": \"MCA\",\n  \"graduationYear\": 2026,\n  \"registrationStart\": \"2026-11-01T09:00:00\",\n  \"registrationEnd\": \"2026-11-30T18:00:00\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/companies/me/drives", "host": ["{{baseUrl}}"], "path": ["api","v1","companies","me","drives"] }
+          }
+        },
+
+        {
+          "name": "List My Drives (All)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{companyToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/companies/me/drives?page=0&size=10&sort=createdAt,desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","companies","me","drives"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sort", "value": "createdAt,desc" }
+              ]
+            }
+          }
+        },
+
+        {
+          "name": "List My Drives (Filter by Status)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{companyToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/companies/me/drives?status=DRAFT&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","companies","me","drives"],
+              "query": [
+                { "key": "status", "value": "DRAFT", "description": "DRAFT | PUBLISHED | CLOSED" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+
+        {
+          "name": "Get Single Drive",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{companyToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/companies/me/drives/{{driveId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","companies","me","drives","{{driveId}}"]
+            }
+          }
+        },
+
+        {
+          "name": "Update Drive (DRAFT only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{companyToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobTitle\": \"Senior Software Engineer\",\n  \"ctc\": 12.0,\n  \"vacancies\": 5,\n  \"description\": \"Updated description — senior role with 2+ years experience preferred.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/companies/me/drives/{{driveId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","companies","me","drives","{{driveId}}"]
+            }
+          }
+        },
+
+        {
+          "name": "Publish Drive (DRAFT → PUBLISHED)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{companyToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/companies/me/drives/{{driveId}}/publish",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","companies","me","drives","{{driveId}}","publish"]
+            }
+          }
+        },
+
+        {
+          "name": "Close Drive (PUBLISHED → CLOSED)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{companyToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/companies/me/drives/{{driveId}}/close",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","companies","me","drives","{{driveId}}","close"]
+            }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🛡️ 6. Admin — Company Approval",
+      "item": [
+
+        {
+          "name": "Get Pending Companies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/companies/pending", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","companies","pending"] }
+          }
+        },
+
+        {
+          "name": "Approve Company",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/companies/{{companyId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","companies","{{companyId}}","approve"]
+            }
+          }
+        },
+
+        {
+          "name": "Reject Company",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/companies/{{companyId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","companies","{{companyId}}","reject"]
+            }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🏗️ 7. Officer — Company Management",
+      "item": [
+
+        {
+          "name": "Provision Company Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{officerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newcompany@test.com\",\n  \"password\": \"Passw0rd1\",\n  \"companyName\": \"New Company Ltd\",\n  \"gstin\": \"22BBBBB0000B1Z6\",\n  \"address\": \"789 Industrial Zone, Surat\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/placement-officers/me/companies", "host": ["{{baseUrl}}"], "path": ["api","v1","placement-officers","me","companies"] }
+          }
+        },
+
+        {
+          "name": "List All Companies (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{officerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/placement-officers/me/companies?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","placement-officers","me","companies"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "status", "value": "ACTIVE", "disabled": true, "description": "Filter: PENDING | ACTIVE | REJECTED | SUSPENDED" }
+              ]
+            }
+          }
+        },
+
+        {
+          "name": "Get Company by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{officerToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/placement-officers/me/companies/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","placement-officers","me","companies","{{companyId}}"]
+            }
+          }
+        },
+
+        {
+          "name": "Update Company Info",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{officerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Updated Company Ltd\",\n  \"phone\": \"0000000000\",\n  \"website\": \"https://updatedcompany.com\",\n  \"address\": \"Updated Address\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/placement-officers/me/companies/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","placement-officers","me","companies","{{companyId}}"]
+            }
+          }
+        }
+
+      ]
+    }
+
+  ]
+}
