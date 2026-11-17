@@ -53,14 +53,4 @@ public class CreateDriveRequest {
 
     /** Optional list of skill IDs to associate with this drive. */
     private List<UUID> skillIds;
-
-    private String driveType; // FULL_TIME, PAID_INTERNSHIP, INTERNSHIP_TO_PPO
-
-    @DecimalMin(value = "0.0", message = "Stipend must be positive")
-    private BigDecimal stipend;
-
-    @Min(value = 18, message = "Maximum age must be at least 18")
-    private Integer maximumAge;
-
-    private Boolean isDreamOffer;
 }

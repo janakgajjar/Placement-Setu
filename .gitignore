@@ -23,8 +23,6 @@ pnpm-debug.log*
 
 target/
 *.class
-backend/data/
-data/
 
 # =========================
 # IDE

@@ -32,33 +32,13 @@ public class ResumeStorageService {
         }
     }
 
-    private static final java.util.Set<String> ALLOWED_EXTENSIONS = java.util.Set.of(".pdf", ".docx", ".txt");
-
     /** Stores the file and returns the storage_key to persist on the Resume row. */
     public String store(MultipartFile file) throws IOException {
-        String originalName = file.getOriginalFilename() == null ? "resume.pdf" : file.getOriginalFilename();
-        
-        // Strip any path traversal characters
-        originalName = Paths.get(originalName).getFileName().toString();
-
-        String extension = "";
-        int dotIndex = originalName.lastIndexOf('.');
-        if (dotIndex != -1) {
-            extension = originalName.substring(dotIndex).toLowerCase();
-        }
-
-        if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("Unsupported file type. Only .pdf, .docx, and .txt files are allowed.");
-        }
-
+        String originalName = file.getOriginalFilename() == null ? "resume" : file.getOriginalFilename();
+        String extension = originalName.contains(".") ? originalName.substring(originalName.lastIndexOf('.')) : "";
         String storageKey = UUID.randomUUID() + extension;
-        Path target = baseDir.resolve(storageKey).normalize();
 
-        // Path Traversal Guard: ensure target file remains inside baseDir
-        if (!target.startsWith(baseDir)) {
-            throw new SecurityException("Invalid target file path traversal detected.");
-        }
-
+        Path target = baseDir.resolve(storageKey);
         Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
         return storageKey;
     }

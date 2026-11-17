@@ -30,7 +30,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final StudentProfileService studentProfileService;
     private final CompanyProfileService companyProfileService;
-    private final com.placementsetu.notification.service.NotificationService notificationService;
 
     @Override
     @Transactional
@@ -74,8 +73,6 @@ public class AuthServiceImpl implements AuthService {
         companyProfileService.createForUser(
                 user.getId(), request.getCompanyName(), request.getGstin(),
                 request.getPhone(), request.getWebsite(), request.getAddress());
-
-        notificationService.notifyCompanySubmitted(request.getCompanyName(), user.getId());
 
         return buildAuthResponse(user);
     }

@@ -45,19 +45,6 @@ public class Notification {
     @Column(name = "subject", nullable = false)
     private String subject;
 
-    @Column(name = "message", columnDefinition = "TEXT")
-    private String message;
-
-    @Column(name = "is_read", nullable = false)
-    @Builder.Default
-    private boolean isRead = false;
-
-    @Column(name = "read_at")
-    private LocalDateTime readAt;
-
-    @Column(name = "idempotency_key")
-    private String idempotencyKey;
-
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "status", nullable = false, columnDefinition = "notification_status")

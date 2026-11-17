@@ -22,21 +22,6 @@ DB_USERNAME=postgres
 DB_PASSWORD=your_postgres_password
 JWT_SECRET=some_random_string_at_least_32_characters_long
 CORS_ALLOWED_ORIGINS=http://localhost:5173
-
-# --- Mail & Email Agent Configuration ---
-# Set MAIL_ENABLED=true to send real emails via SMTP.
-# When false (default), emails are safely stored in email_outbox with status 'SKIPPED' (dev mode).
-MAIL_ENABLED=false
-MAIL_HOST=localhost
-MAIL_PORT=1025
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM=noreply@placementsetu.gujaratvidyapith.edu
-MAIL_SMTP_AUTH=false
-MAIL_SMTP_STARTTLS=false
-MAIL_MAX_RETRIES=3
-MAIL_POLL_INTERVAL_MS=5000
-APP_BASE_URL=http://localhost:5173
 ```
 
 ## 3. Run the backend
@@ -118,27 +103,7 @@ CREATE DATABASE placement_setu;
 ```
 then restart the app so Flyway reapplies from scratch.
 
-## Running the Frontend (React + Vite)
-
-### Prerequisites
-- Node.js 18+ and npm
-
-### 1. Configure environment
-```bash
-cd frontend
-copy .env.example .env
-```
-Ensure `VITE_API_BASE_URL=http://localhost:8080` is configured.
-
-### 2. Install dependencies & run development server
-```bash
-npm install
-npm run dev
-```
-The application will be accessible at `http://localhost:5173`.
-
-### 3. Documentation & Verification
-- **API Mapping & Contracts:** See [docs/FRONTEND_BACKEND_MAPPING.md](docs/FRONTEND_BACKEND_MAPPING.md)
-- **Manual Testing Guide:** See [docs/FRONTEND_MANUAL_TESTING_GUIDE.md](docs/FRONTEND_MANUAL_TESTING_GUIDE.md)
-- **Implementation Report:** See [docs/FRONTEND_IMPLEMENTATION_REPORT.md](docs/FRONTEND_IMPLEMENTATION_REPORT.md)
-
+## What's not wired up yet
+See `MIGRATION_NOTES.md` — placement drives, applications, shortlisting,
+real email notifications, and the frontend are the next pieces per the
+Section 21 dev order.
