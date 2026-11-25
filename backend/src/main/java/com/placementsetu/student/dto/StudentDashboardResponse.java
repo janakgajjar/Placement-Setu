@@ -20,4 +20,6 @@ public class StudentDashboardResponse {
     private boolean resumeUploadRequired;
     private boolean visibleToCompanies;
     private List<String> missingFields;
+    private Integer completionPercentage;
+    private Long totalAppliedDrives;
 }

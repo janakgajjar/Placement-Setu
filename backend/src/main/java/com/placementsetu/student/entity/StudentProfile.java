@@ -1,5 +1,6 @@
 package com.placementsetu.student.entity;
 
+import com.placementsetu.common.enums.ProfileApprovalStatus;
 import com.placementsetu.common.enums.ProfileStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -73,11 +74,28 @@ public class StudentProfile {
     @Column(name = "github_url")
     private String githubUrl;
 
+    @Column(name = "date_of_birth")
+    private java.time.LocalDate dateOfBirth;
+
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "profile_status", nullable = false, columnDefinition = "profile_status")
     @Builder.Default
     private ProfileStatus profileStatus = ProfileStatus.INCOMPLETE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", nullable = false, length = 30)
+    @Builder.Default
+    private ProfileApprovalStatus approvalStatus = ProfileApprovalStatus.DRAFT;
+
+    @Column(name = "review_remarks", columnDefinition = "TEXT")
+    private String reviewRemarks;
+
+    @Column(name = "reviewed_by")
+    private UUID reviewedBy;
+
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
 
     @Column(name = "placement_locked", nullable = false)
     @Builder.Default

@@ -19,6 +19,8 @@ public interface PlacementDriveRepository extends JpaRepository<PlacementDrive, 
     /** Legacy list — kept for any existing internal usages. */
     List<PlacementDrive> findByCompanyId(UUID companyId);
 
+    long countByCompanyId(UUID companyId);
+
     /**
      * Paginated listing with optional status filter.
      * Used by GET /companies/me/drives?page=&size=&sort=&status=
@@ -39,4 +41,26 @@ public interface PlacementDriveRepository extends JpaRepository<PlacementDrive, 
      * Used by GET, PUT, POST publish/close on /companies/me/drives/{driveId}.
      */
     Optional<PlacementDrive> findByIdAndCompanyId(UUID id, UUID companyId);
+
+    /**
+     * Public read queries — returns only PUBLISHED drives.
+     */
+    Page<PlacementDrive> findByStatus(DriveStatus status, Pageable pageable);
+
+    @Query("""
+            SELECT d FROM PlacementDrive d
+            WHERE d.status = :status
+              AND (:search IS NULL OR :search = ''
+                   OR LOWER(d.jobTitle) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(d.location) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<PlacementDrive> searchByStatus(
+            @Param("status") DriveStatus status,
+            @Param("search") String search,
+            Pageable pageable
+    );
+
+    Optional<PlacementDrive> findByIdAndStatus(UUID id, DriveStatus status);
+
+    long countByStatus(DriveStatus status);
 }

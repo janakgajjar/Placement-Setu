@@ -1,5 +1,6 @@
 package com.placementsetu.student.dto;
 
+import com.placementsetu.common.enums.ProfileApprovalStatus;
 import com.placementsetu.common.enums.ProfileStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,10 +32,16 @@ public class StudentProfileResponse {
     private String linkedinUrl;
     private String githubUrl;
     private ProfileStatus profileStatus;
+    private ProfileApprovalStatus approvalStatus;
+    private String reviewRemarks;
+    private UUID reviewedBy;
+    private LocalDateTime reviewedAt;
     private boolean placementLocked;
     private List<String> skills;
     private List<ProjectResponse> projects;
     private List<CertificationResponse> certifications;
     private boolean resumeUploaded;
     private String resumeProcessingStatus;
+    private List<String> missingFields;
+    private int completionPercentage;
 }

@@ -1,5 +1,6 @@
 package com.placementsetu.placement.service.impl;
 
+import com.placementsetu.audit.service.AuditService;
 import com.placementsetu.common.enums.DriveStatus;
 import com.placementsetu.exception.BadRequestException;
 import com.placementsetu.exception.ResourceNotFoundException;
@@ -32,6 +33,10 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
     private final PlacementDriveRepository driveRepository;
     private final DriveSkillRepository driveSkillRepository;
     private final SkillRepository skillRepository;
+    private final com.placementsetu.company.repository.CompanyRepository companyRepository;
+    private final com.placementsetu.notification.service.NotificationService notificationService;
+    private final com.placementsetu.policy.service.PlacementPolicyService policyService;
+    private final AuditService auditService;
 
     // ─────────────────────────────────────────────────────────────────────────
     // POST /companies/me/drives
@@ -55,10 +60,21 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
                 .graduationYear(request.getGraduationYear())
                 .registrationStart(request.getRegistrationStart())
                 .registrationEnd(request.getRegistrationEnd())
+                .driveType(request.getDriveType() != null ? request.getDriveType() : "FULL_TIME")
+                .stipend(request.getStipend())
+                .maximumAge(request.getMaximumAge())
+                .isDreamOffer(request.getIsDreamOffer() != null ? request.getIsDreamOffer() : false)
                 .status(DriveStatus.DRAFT)
                 .build();
 
+        policyService.validatePaidInternshipPolicy(drive);
+
         drive = driveRepository.save(drive);
+
+        if (auditService != null) {
+            auditService.logEvent(companyId, "DRIVE_CREATED", "PLACEMENT_DRIVE", drive.getId(),
+                    java.util.Map.of("jobTitle", drive.getJobTitle(), "status", drive.getStatus().name()));
+        }
 
         List<String> skillNames = syncDriveSkills(drive.getId(), request.getSkillIds());
 
@@ -97,9 +113,12 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
     public DriveResponse updateDrive(UUID companyId, UUID driveId, UpdateDriveRequest request) {
         PlacementDrive drive = requireOwnedDrive(companyId, driveId);
 
-        if (drive.getStatus() != DriveStatus.DRAFT) {
-            throw new BadRequestException("A drive can only be updated while it is in DRAFT state.");
+        if (drive.getStatus() != DriveStatus.DRAFT && drive.getStatus() != DriveStatus.REJECTED) {
+            throw new BadRequestException(
+                    "A drive can only be updated while it is in DRAFT or REJECTED state. Current status: " + drive.getStatus());
         }
+
+        boolean wasRejected = drive.getStatus() == DriveStatus.REJECTED;
 
         // Apply partial updates (patch semantics — only non-null values)
         if (request.getJobTitle() != null)       drive.setJobTitle(request.getJobTitle());
@@ -111,6 +130,10 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         if (request.getMaximumBacklogs() != null) drive.setMaximumBacklogs(request.getMaximumBacklogs());
         if (request.getRequiredCourse() != null) drive.setRequiredCourse(request.getRequiredCourse());
         if (request.getGraduationYear() != null) drive.setGraduationYear(request.getGraduationYear());
+        if (request.getDriveType() != null)      drive.setDriveType(request.getDriveType());
+        if (request.getStipend() != null)        drive.setStipend(request.getStipend());
+        if (request.getMaximumAge() != null)     drive.setMaximumAge(request.getMaximumAge());
+        if (request.getIsDreamOffer() != null)   drive.setIsDreamOffer(request.getIsDreamOffer());
 
         LocalDateTime newStart = request.getRegistrationStart() != null
                 ? request.getRegistrationStart() : drive.getRegistrationStart();
@@ -120,7 +143,21 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         drive.setRegistrationStart(newStart);
         drive.setRegistrationEnd(newEnd);
 
+        policyService.validatePaidInternshipPolicy(drive);
+
+        if (wasRejected) {
+            drive.setRejectionReason(null);
+            drive.setReviewRemarks(null);
+            drive.setReviewedBy(null);
+            drive.setReviewedAt(null);
+        }
+
         drive = driveRepository.save(drive);
+
+        if (auditService != null) {
+            auditService.logEvent(companyId, "DRIVE_UPDATED", "PLACEMENT_DRIVE", drive.getId(),
+                    java.util.Map.of("jobTitle", drive.getJobTitle(), "status", drive.getStatus().name()));
+        }
 
         List<String> skillNames;
         if (request.getSkillIds() != null) {
@@ -133,23 +170,48 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // POST /companies/me/drives/{driveId}/publish
+    // POST /companies/me/drives/{driveId}/submit
     // ─────────────────────────────────────────────────────────────────────────
 
     @Override
     @Transactional
-    public DriveResponse publishDrive(UUID companyId, UUID driveId) {
+    public DriveResponse submitDriveForApproval(UUID companyId, UUID driveId) {
         PlacementDrive drive = requireOwnedDrive(companyId, driveId);
 
-        if (drive.getStatus() != DriveStatus.DRAFT) {
+        if (drive.getStatus() != DriveStatus.DRAFT && drive.getStatus() != DriveStatus.REJECTED) {
             throw new BadRequestException(
-                    "Only a DRAFT drive can be published. Current status: " + drive.getStatus());
+                    "Only a DRAFT or REJECTED drive can be submitted for approval. Current status: " + drive.getStatus());
         }
 
-        drive.setStatus(DriveStatus.PUBLISHED);
-        drive = driveRepository.save(drive);
+        if (drive.getJobTitle() == null || drive.getJobTitle().isBlank()) {
+            throw new BadRequestException("Job title is required before submitting for approval.");
+        }
+        if (drive.getVacancies() == null || drive.getVacancies() <= 0) {
+            throw new BadRequestException("Vacancies must be greater than zero before submitting for approval.");
+        }
+        validateRegistrationWindow(drive.getRegistrationStart(), drive.getRegistrationEnd(), drive.getId());
+        policyService.validatePaidInternshipPolicy(drive);
 
-        return toResponse(drive, getSkillNames(drive.getId()));
+        drive.setStatus(DriveStatus.PENDING_APPROVAL);
+        drive.setSubmittedAt(LocalDateTime.now());
+        drive.setRejectionReason(null);
+        drive.setReviewRemarks(null);
+        drive.setReviewedBy(null);
+        drive.setReviewedAt(null);
+        final PlacementDrive submittedDrive = driveRepository.save(drive);
+
+        if (auditService != null) {
+            auditService.logEvent(companyId, "DRIVE_SUBMITTED_FOR_APPROVAL", "PLACEMENT_DRIVE", submittedDrive.getId(),
+                    java.util.Map.of("jobTitle", submittedDrive.getJobTitle(), "status", submittedDrive.getStatus().name()));
+        }
+
+        String companyName = companyRepository.findById(submittedDrive.getCompanyId())
+                .map(com.placementsetu.company.entity.Company::getCompanyName)
+                .orElse("Partner Company");
+        notificationService.notifyDriveSubmittedForApproval(
+                submittedDrive.getId(), submittedDrive.getJobTitle(), companyName);
+
+        return toResponse(submittedDrive, getSkillNames(submittedDrive.getId()));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -167,9 +229,18 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         }
 
         drive.setStatus(DriveStatus.CLOSED);
-        drive = driveRepository.save(drive);
+        final PlacementDrive closedDrive = driveRepository.save(drive);
 
-        return toResponse(drive, getSkillNames(drive.getId()));
+        if (auditService != null) {
+            auditService.logEvent(companyId, "DRIVE_CLOSED", "PLACEMENT_DRIVE", closedDrive.getId(),
+                    java.util.Map.of("jobTitle", closedDrive.getJobTitle()));
+        }
+
+        companyRepository.findById(companyId).ifPresent(c -> {
+            notificationService.notifyDriveClosed(closedDrive.getId(), closedDrive.getJobTitle(), c.getCompanyName(), c.getUserId());
+        });
+
+        return toResponse(closedDrive, getSkillNames(closedDrive.getId()));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -190,7 +261,10 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
             LocalDateTime start,
             LocalDateTime end,
             @SuppressWarnings("unused") UUID driveId) {
-        if (start != null && end != null && !end.isAfter(start)) {
+        if (start == null || end == null) {
+            throw new BadRequestException("Registration start and end dates are required.");
+        }
+        if (!end.isAfter(start)) {
             throw new BadRequestException("Registration end date must be after the start date.");
         }
     }
@@ -228,9 +302,21 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
     }
 
     private DriveResponse toResponse(PlacementDrive drive, List<String> skillNames) {
+        String companyName = null;
+        String companyWebsite = null;
+        if (drive.getCompanyId() != null) {
+            var optCompany = companyRepository.findById(drive.getCompanyId());
+            if (optCompany.isPresent()) {
+                companyName = optCompany.get().getCompanyName();
+                companyWebsite = optCompany.get().getWebsite();
+            }
+        }
+
         return DriveResponse.builder()
                 .id(drive.getId())
                 .companyId(drive.getCompanyId())
+                .companyName(companyName)
+                .companyWebsite(companyWebsite)
                 .jobTitle(drive.getJobTitle())
                 .description(drive.getDescription())
                 .location(drive.getLocation())
@@ -242,7 +328,16 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
                 .graduationYear(drive.getGraduationYear())
                 .registrationStart(drive.getRegistrationStart())
                 .registrationEnd(drive.getRegistrationEnd())
+                .driveType(drive.getDriveType())
+                .stipend(drive.getStipend())
+                .maximumAge(drive.getMaximumAge())
+                .isDreamOffer(drive.getIsDreamOffer())
                 .status(drive.getStatus())
+                .rejectionReason(drive.getRejectionReason())
+                .reviewRemarks(drive.getReviewRemarks())
+                .submittedAt(drive.getSubmittedAt())
+                .reviewedBy(drive.getReviewedBy())
+                .reviewedAt(drive.getReviewedAt())
                 .skills(skillNames)
                 .createdAt(drive.getCreatedAt())
                 .updatedAt(drive.getUpdatedAt())
