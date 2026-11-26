@@ -106,3 +106,42 @@ export function validateFullName(name) {
   }
   return null;
 }
+
+export function validateCompanyName(name) {
+  if (!name || !name.trim()) {
+    return 'Company name is required';
+  }
+  const trimmed = name.trim();
+  if (trimmed.length < 2) {
+    return 'Company name must be at least 2 characters';
+  }
+  if (trimmed.length > 100) {
+    return 'Company name cannot exceed 100 characters';
+  }
+  return null;
+}
+
+export function validateGstin(gstin) {
+  if (!gstin || !gstin.trim()) {
+    return null;
+  }
+  const trimmed = gstin.trim().toUpperCase();
+  const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  if (!GSTIN_REGEX.test(trimmed)) {
+    return 'Must be a valid 15-character GSTIN format (e.g. 24AAAAA0000A1Z5)';
+  }
+  return null;
+}
+
+export function validateWebsite(website) {
+  if (!website || !website.trim()) {
+    return null;
+  }
+  const trimmed = website.trim();
+  const URL_REGEX = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
+  if (!URL_REGEX.test(trimmed)) {
+    return 'Must be a valid website URL (e.g. https://www.company.com)';
+  }
+  return null;
+}
+

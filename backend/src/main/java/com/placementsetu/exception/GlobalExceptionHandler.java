@@ -60,6 +60,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("You do not have permission to perform this action"));
     }
 
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex) {
+        String msg = "Data integrity violation. A unique constraint was violated.";
+        String exMsg = ex.getMessage();
+        if (exMsg != null) {
+            if (exMsg.contains("appar_id") || exMsg.contains("student_profiles_appar_id_key")) {
+                msg = "This APAAR / ABC ID is already registered to another student profile.";
+            } else if (exMsg.contains("email")) {
+                msg = "An account with this email address already exists.";
+            }
+        }
+        return ResponseEntity.badRequest().body(ApiResponse.error(msg));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

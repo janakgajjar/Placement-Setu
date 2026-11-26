@@ -23,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/placement-officers/students")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PLACEMENT_OFFICER')")
+@PreAuthorize("hasAnyRole('PLACEMENT_OFFICER', 'ADMIN')")
 public class OfficerStudentController {
 
     private final OfficerStudentService officerStudentService;
