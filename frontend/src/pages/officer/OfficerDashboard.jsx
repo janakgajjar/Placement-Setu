@@ -43,9 +43,9 @@ export default function OfficerDashboard() {
         />
 
         <StatCard
-          label="AI Batch Resume Parser"
-          value="Ready"
-          subtext="Asynchronous background queue"
+          label="Corporate Partners"
+          value="Managed"
+          subtext="Credentials & compliance"
           color="var(--gv-warm-taupe)"
         />
       </div>
@@ -91,11 +91,14 @@ export default function OfficerDashboard() {
           <Link to={ROUTES.OFFICER_APPROVALS} className="gv-btn gv-btn--primary gv-btn--sm">
             Open Approvals Desk →
           </Link>
-          <Link to={ROUTES.OFFICER_BATCH_RESUME} className="gv-btn gv-btn--sage gv-btn--sm">
-            Launch AI Batch Resume Parser ⚡
+          <Link to={ROUTES.OFFICER_STUDENTS} className="gv-btn gv-btn--sage gv-btn--sm">
+            Student KYC Verification 🎓
           </Link>
           <Link to={ROUTES.OFFICER_COMPANIES} className="gv-btn gv-btn--secondary gv-btn--sm">
             View All Corporate Partners
+          </Link>
+          <Link to={ROUTES.ADMIN_AUDIT_LOGS} className="gv-btn gv-btn--outline gv-btn--sm">
+            System Audit Trail 📋
           </Link>
         </div>
       </Card>

@@ -1,5 +1,6 @@
 package com.placementsetu.officer.service;
 
+import com.placementsetu.common.enums.DriveStatus;
 import com.placementsetu.placement.dto.DriveResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,11 @@ import java.util.UUID;
  * Service contract for Placement Officer review and approval/rejection of placement drives.
  */
 public interface OfficerDriveService {
+
+    /**
+     * List placement drives with optional status filter.
+     */
+    Page<DriveResponse> getDrives(DriveStatus status, Pageable pageable);
 
     /**
      * List all placement drives awaiting Placement Officer approval.

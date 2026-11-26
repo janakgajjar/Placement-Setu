@@ -11,9 +11,8 @@ package com.placementsetu.common.enums;
  */
 public enum DriveStatus {
     DRAFT,
-    PUBLISHED,
     PENDING_APPROVAL,
-    OPEN,
-    CLOSED,
-    REJECTED
+    PUBLISHED,
+    REJECTED,
+    CLOSED
 }

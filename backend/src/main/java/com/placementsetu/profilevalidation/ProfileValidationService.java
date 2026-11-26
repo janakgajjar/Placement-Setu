@@ -1,5 +1,6 @@
 package com.placementsetu.profilevalidation;
 
+import com.placementsetu.common.enums.ProfileApprovalStatus;
 import com.placementsetu.common.enums.ProfileStatus;
 import com.placementsetu.resume.entity.Resume;
 import com.placementsetu.resume.repository.ResumeRepository;
@@ -45,8 +46,28 @@ public class ProfileValidationService {
         return missingFields(profile).isEmpty();
     }
 
+    public int computeCompletionPercentage(StudentProfile profile) {
+        List<String> missing = missingFields(profile);
+        int totalFields = 6;
+        if (missing.isEmpty()) {
+            return 100;
+        }
+        int completed = totalFields - missing.size();
+        return Math.max(0, (completed * 100) / totalFields);
+    }
+
+    public void invalidateApprovalIfApproved(StudentProfile profile) {
+        if (profile != null && profile.getApprovalStatus() == ProfileApprovalStatus.APPROVED) {
+            profile.setApprovalStatus(ProfileApprovalStatus.DRAFT);
+            profile.setReviewedBy(null);
+            profile.setReviewedAt(null);
+            profile.setReviewRemarks(null);
+        }
+    }
+
     /** Recomputes and returns the profile_status the entity should be saved with. */
     public ProfileStatus computeProfileStatus(StudentProfile profile) {
+        invalidateApprovalIfApproved(profile);
         return isProfileComplete(profile) ? ProfileStatus.COMPLETE : ProfileStatus.INCOMPLETE;
     }
 

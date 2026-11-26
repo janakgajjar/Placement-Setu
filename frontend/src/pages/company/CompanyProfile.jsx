@@ -9,6 +9,8 @@ import api from '../../lib/api';
 export default function CompanyProfile() {
   const [profile, setProfile] = useState({
     companyName: '',
+    contactPerson: '',
+    email: '',
     gstin: '',
     phone: '',
     website: '',
@@ -28,6 +30,8 @@ export default function CompanyProfile() {
         if (res?.data) {
           setProfile({
             companyName: res.data.companyName || '',
+            contactPerson: res.data.contactPerson || '',
+            email: res.data.email || '',
             gstin: res.data.gstin || '',
             phone: res.data.phone || '',
             website: res.data.website || '',
@@ -35,7 +39,7 @@ export default function CompanyProfile() {
           });
         }
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Failed to load company profile.');
       } finally {
         setLoading(false);
       }
@@ -53,9 +57,10 @@ export default function CompanyProfile() {
     setError(null);
     try {
       await api.company.updateProfile({
-        phone: profile.phone,
-        website: profile.website,
-        address: profile.address,
+        contactPerson: profile.contactPerson.trim(),
+        phone: profile.phone.trim(),
+        website: profile.website.trim(),
+        address: profile.address.trim(),
       });
       setShowSuccess(true);
     } catch (err) {
@@ -84,58 +89,84 @@ export default function CompanyProfile() {
       )}
 
       <Card title="Enterprise Profile &amp; Contact Details">
-        <form onSubmit={handleSave}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <FormField
-              id="companyName"
-              label="Enterprise Legal Name"
-              value={profile.companyName}
-              disabled
-              helpText="Verified by university placement administration"
-            />
-
-            <FormField
-              id="gstin"
-              label="Corporate GSTIN"
-              value={profile.gstin}
-              disabled
-              helpText="Verified institutional tax identification"
-            />
+        {loading ? (
+          <div style={{ padding: '30px', textAlign: 'center', color: 'var(--gv-text-muted)' }}>
+            Loading enterprise profile...
           </div>
+        ) : (
+          <form onSubmit={handleSave}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <FormField
+                id="companyName"
+                label="Enterprise Legal Name"
+                value={profile.companyName}
+                disabled
+                helpText="Verified by university placement administration"
+              />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <FormField
+                id="gstin"
+                label="Corporate GSTIN"
+                value={profile.gstin}
+                disabled
+                helpText="Verified institutional tax identification"
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <FormField
+                id="email"
+                label="Registered HR Email"
+                value={profile.email}
+                disabled
+                helpText="Primary login identifier"
+              />
+
+              <FormField
+                id="contactPerson"
+                label="Primary Contact Person / HR Lead"
+                value={profile.contactPerson}
+                onChange={handleChange}
+                placeholder="e.g. Talent Acquisition Lead"
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <FormField
+                id="phone"
+                label="Recruiter Phone / Landline"
+                value={profile.phone}
+                onChange={handleChange}
+                required
+              />
+
+              <FormField
+                id="website"
+                label="Corporate Website URL"
+                type="url"
+                value={profile.website}
+                onChange={handleChange}
+                placeholder="https://company.com"
+              />
+            </div>
+
             <FormField
-              id="phone"
-              label="Recruiter Phone / Landline"
-              value={profile.phone}
+              id="address"
+              label="Corporate Registered Address"
+              as="textarea"
+              rows={3}
+              value={profile.address}
               onChange={handleChange}
-              required
+              placeholder="Full postal address"
             />
 
-            <FormField
-              id="website"
-              label="Corporate Website URL"
-              type="url"
-              value={profile.website}
-              onChange={handleChange}
-            />
-          </div>
-
-          <FormField
-            id="address"
-            label="Corporate Registered Address"
-            as="textarea"
-            rows={3}
-            value={profile.address}
-            onChange={handleChange}
-          />
-
-          <div style={{ marginTop: '20px' }}>
-            <Button type="submit" variant="primary" loading={saving}>
-              Save Profile Changes →
-            </Button>
-          </div>
-        </form>
+            <div style={{ marginTop: '20px' }}>
+              <Button type="submit" variant="primary" loading={saving}>
+                Save Profile Changes →
+              </Button>
+            </div>
+          </form>
+        )}
       </Card>
     </DashboardLayout>
   );

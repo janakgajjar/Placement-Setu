@@ -1,6 +1,7 @@
 package com.placementsetu.officer.controller;
 
 import com.placementsetu.common.ApiResponse;
+import com.placementsetu.common.enums.DriveStatus;
 import com.placementsetu.officer.dto.OfficerDriveDecisionRequest;
 import com.placementsetu.officer.service.OfficerDriveService;
 import com.placementsetu.placement.dto.DriveResponse;
@@ -31,6 +32,15 @@ import java.util.UUID;
 public class OfficerDriveController {
 
     private final OfficerDriveService officerDriveService;
+
+    @Operation(summary = "List placement drives with optional status filter")
+    @GetMapping
+    public ApiResponse<Page<DriveResponse>> getDrives(
+            @RequestParam(required = false) DriveStatus status,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ApiResponse.success("Placement drives fetched successfully",
+                officerDriveService.getDrives(status, pageable));
+    }
 
     @Operation(summary = "List placement drives awaiting Placement Officer approval")
     @GetMapping("/pending")

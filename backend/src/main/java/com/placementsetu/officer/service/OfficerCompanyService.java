@@ -36,4 +36,28 @@ public interface OfficerCompanyService {
      * PUT /api/v1/placement-officers/me/companies/{companyId}
      */
     CompanyProfileResponse updateCompany(UUID companyId, UpdateCompanyByOfficerRequest request);
+
+    /**
+     * Activate a company account.
+     * POST /api/v1/placement-officers/me/companies/{companyId}/activate
+     */
+    CompanyProfileResponse activateCompany(UUID companyId);
+
+    /**
+     * Deactivate / suspend a company account.
+     * POST /api/v1/placement-officers/me/companies/{companyId}/deactivate
+     */
+    CompanyProfileResponse deactivateCompany(UUID companyId);
+
+    /**
+     * Reset a company's password.
+     * POST /api/v1/placement-officers/me/companies/{companyId}/reset-password
+     */
+    CompanyProfileResponse resetCompanyPassword(UUID companyId, String newPassword);
+
+    /**
+     * Delete a company account and profile.
+     * DELETE /api/v1/placement-officers/me/companies/{companyId}
+     */
+    void deleteCompany(UUID companyId);
 }

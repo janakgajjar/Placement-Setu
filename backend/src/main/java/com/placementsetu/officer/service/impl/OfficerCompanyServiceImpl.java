@@ -122,6 +122,76 @@ public class OfficerCompanyServiceImpl implements OfficerCompanyService {
         return toResponse(company, user);
     }
 
+    @Override
+    @Transactional
+    public CompanyProfileResponse activateCompany(UUID companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
+        User user = userRepository.findById(company.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for company"));
+
+        user.setAccountStatus(AccountStatus.ACTIVE);
+        user = userRepository.save(user);
+
+        return toResponse(company, user);
+    }
+
+    @Override
+    @Transactional
+    public CompanyProfileResponse deactivateCompany(UUID companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
+        User user = userRepository.findById(company.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for company"));
+
+        user.setAccountStatus(AccountStatus.SUSPENDED);
+        user = userRepository.save(user);
+
+        return toResponse(company, user);
+    }
+
+    @Override
+    @Transactional
+    public CompanyProfileResponse resetCompanyPassword(UUID companyId, String newPassword) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
+        User user = userRepository.findById(company.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for company"));
+
+        String tempPassword = (newPassword != null && !newPassword.isBlank()) ? newPassword : "Temp@" + UUID.randomUUID().toString().substring(0, 8);
+        user.setPasswordHash(passwordEncoder.encode(tempPassword));
+        user.setMustChangePassword(true);
+        user = userRepository.save(user);
+
+        CompanyProfileResponse response = toResponse(company, user);
+        return CompanyProfileResponse.builder()
+                .id(response.getId())
+                .userId(response.getUserId())
+                .companyName(response.getCompanyName())
+                .contactPerson(response.getContactPerson())
+                .email(response.getEmail())
+                .gstin(response.getGstin())
+                .phone(response.getPhone())
+                .website(response.getWebsite())
+                .address(response.getAddress())
+                .accountStatus(response.getAccountStatus())
+                .mustChangePassword(true)
+                .temporaryPassword(tempPassword)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteCompany(UUID companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
+        UUID userId = company.getUserId();
+        companyRepository.delete(company);
+        if (userId != null) {
+            userRepository.deleteById(userId);
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────

@@ -114,7 +114,7 @@ public class PlacementDriveController {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Operation(summary = "Submit a DRAFT or REJECTED drive for Placement Officer approval")
-    @PostMapping("/{driveId}/submit")
+    @PostMapping(value = {"/{driveId}/submit", "/{driveId}/publish"})
     public ApiResponse<DriveResponse> submitDriveForApproval(
             @AuthenticationPrincipal CustomUserDetails principal,
             @PathVariable UUID driveId) {
@@ -137,6 +137,21 @@ public class PlacementDriveController {
         UUID companyId = resolveCompanyId(principal);
         DriveResponse response = placementDriveService.closeDrive(companyId, driveId);
         return ApiResponse.success("Placement drive closed successfully", response);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DELETE /api/v1/companies/me/drives/{driveId}
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Operation(summary = "Delete a placement drive (allowed if not PUBLISHED)")
+    @DeleteMapping("/{driveId}")
+    public ApiResponse<Void> deleteDrive(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable UUID driveId) {
+
+        UUID companyId = resolveCompanyId(principal);
+        placementDriveService.deleteDrive(companyId, driveId);
+        return ApiResponse.success("Placement drive deleted successfully", null);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

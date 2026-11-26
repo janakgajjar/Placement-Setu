@@ -2,8 +2,10 @@ package com.placementsetu.common.enums;
 
 public enum ApplicationStatus {
     APPLIED,
-    WITHDRAWN,
+    UNDER_REVIEW,
     SHORTLISTED,
+    INTERVIEW_SCHEDULED,
+    SELECTED,
     REJECTED,
-    SELECTED
+    WITHDRAWN
 }

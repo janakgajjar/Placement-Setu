@@ -87,4 +87,38 @@ public class OfficerCompanyController {
         CompanyProfileResponse response = officerCompanyService.updateCompany(companyId, request);
         return ApiResponse.success("Company updated successfully", response);
     }
+
+    @Operation(summary = "Activate a company account")
+    @PostMapping("/{companyId}/activate")
+    public ApiResponse<CompanyProfileResponse> activateCompany(@PathVariable UUID companyId) {
+        CompanyProfileResponse response = officerCompanyService.activateCompany(companyId);
+        return ApiResponse.success("Company account activated successfully", response);
+    }
+
+    @Operation(summary = "Deactivate/suspend a company account")
+    @PostMapping("/{companyId}/deactivate")
+    public ApiResponse<CompanyProfileResponse> deactivateCompany(@PathVariable UUID companyId) {
+        CompanyProfileResponse response = officerCompanyService.deactivateCompany(companyId);
+        return ApiResponse.success("Company account deactivated successfully", response);
+    }
+
+    @Operation(summary = "Reset password for a company account")
+    @PostMapping("/{companyId}/reset-password")
+    public ApiResponse<CompanyProfileResponse> resetCompanyPassword(
+            @PathVariable UUID companyId,
+            @RequestBody(required = false) java.util.Map<String, Object> body) {
+        String newPassword = null;
+        if (body != null && body.get("newPassword") != null) {
+            newPassword = String.valueOf(body.get("newPassword"));
+        }
+        CompanyProfileResponse response = officerCompanyService.resetCompanyPassword(companyId, newPassword);
+        return ApiResponse.success("Password reset successfully", response);
+    }
+
+    @Operation(summary = "Delete a company account")
+    @DeleteMapping("/{companyId}")
+    public ApiResponse<Void> deleteCompany(@PathVariable UUID companyId) {
+        officerCompanyService.deleteCompany(companyId);
+        return ApiResponse.success("Company account deleted successfully", null);
+    }
 }

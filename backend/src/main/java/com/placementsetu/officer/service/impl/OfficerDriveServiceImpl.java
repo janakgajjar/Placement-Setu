@@ -39,6 +39,15 @@ public class OfficerDriveServiceImpl implements OfficerDriveService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<DriveResponse> getDrives(DriveStatus status, Pageable pageable) {
+        if (status != null) {
+            return driveRepository.findByStatus(status, pageable).map(this::toResponse);
+        }
+        return driveRepository.findAll(pageable).map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<DriveResponse> getPendingDrives(Pageable pageable) {
         return driveRepository.findByStatus(DriveStatus.PENDING_APPROVAL, pageable)
                 .map(this::toResponse);

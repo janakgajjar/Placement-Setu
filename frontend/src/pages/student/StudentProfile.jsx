@@ -46,6 +46,9 @@ export default function StudentProfile() {
   const [backupProfile, setBackupProfile] = useState(null);
   const [missingFields, setMissingFields] = useState([]);
   const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [approvalStatus, setApprovalStatus] = useState('DRAFT');
+  const [reviewRemarks, setReviewRemarks] = useState(null);
+  const [submittingProfile, setSubmittingProfile] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -101,6 +104,8 @@ export default function StudentProfile() {
         setBackupProfile(mapped);
         setMissingFields(d.missingFields || (dashRes.status === 'fulfilled' ? dashRes.value?.data?.missingFields : []) || []);
         setCompletionPercentage(d.completionPercentage ?? (dashRes.status === 'fulfilled' ? dashRes.value?.data?.completionPercentage : 0) ?? 0);
+        setApprovalStatus(d.approvalStatus || (dashRes.status === 'fulfilled' ? dashRes.value?.data?.approvalStatus : 'DRAFT') || 'DRAFT');
+        setReviewRemarks(d.reviewRemarks || null);
       }
     } catch (err) {
       setError(err.message || 'Failed to load Student Profile KYC.');
@@ -135,6 +140,28 @@ export default function StudentProfile() {
     setFieldErrors({});
     setError(null);
     setIsEditing(false);
+  };
+
+  const handleSubmitForApproval = async () => {
+    if (missingFields.length > 0 || completionPercentage < 100) {
+      setError('Please complete all mandatory profile fields before submitting for Placement Officer verification.');
+      return;
+    }
+    setSubmittingProfile(true);
+    setError(null);
+    try {
+      const res = await api.student.submitProfile();
+      if (res?.data) {
+        setApprovalStatus(res.data.approvalStatus || 'SUBMITTED');
+        setReviewRemarks(res.data.reviewRemarks || null);
+      }
+      setShowSuccess(true);
+      await loadProfile();
+    } catch (err) {
+      setError(err.message || 'Failed to submit profile for officer verification.');
+    } finally {
+      setSubmittingProfile(false);
+    }
   };
 
   const handleAddSkill = async (skillName) => {
@@ -378,6 +405,21 @@ export default function StudentProfile() {
                   }}
                 >
                   ⚠️ {missingFields.length} REQUIREMENT{missingFields.length > 1 ? 'S' : ''} MISSING
+                </span>
+              )}
+              {approvalStatus === 'APPROVED' && (
+                <span style={{ backgroundColor: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px' }}>
+                  ✓ OFFICER APPROVED
+                </span>
+              )}
+              {approvalStatus === 'SUBMITTED' && (
+                <span style={{ backgroundColor: '#E1F5FE', border: '1px solid #81D4FA', color: '#0277BD', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px' }}>
+                  ⏳ PENDING OFFICER REVIEW
+                </span>
+              )}
+              {approvalStatus === 'CHANGES_REQUESTED' && (
+                <span style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF9A9A', color: '#C62828', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px' }}>
+                  ⚠️ CHANGES REQUESTED
                 </span>
               )}
             </div>
@@ -711,7 +753,7 @@ export default function StudentProfile() {
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <Link to={ROUTES.STUDENT_RESUME} className="gv-btn gv-btn--secondary">
                 📄 AI Resume Manager
               </Link>
@@ -719,10 +761,22 @@ export default function StudentProfile() {
                 type="button"
                 className="gv-btn gv-btn--primary"
                 onClick={handleStartEdit}
-                style={{ minWidth: '180px' }}
+                style={{ minWidth: '160px' }}
               >
                 ✏️ Edit Profile KYC
               </button>
+              {(approvalStatus === 'DRAFT' || approvalStatus === 'CHANGES_REQUESTED') && (
+                <button
+                  type="button"
+                  className="gv-btn gv-btn--sage"
+                  disabled={missingFields.length > 0 || completionPercentage < 100 || submittingProfile}
+                  onClick={handleSubmitForApproval}
+                  style={{ minWidth: '180px' }}
+                  title={missingFields.length > 0 ? 'Complete all fields first' : 'Submit verified profile to Placement Officer'}
+                >
+                  {submittingProfile ? 'Submitting...' : 'Submit to Officer →'}
+                </button>
+              )}
             </div>
           </div>
         </div>
