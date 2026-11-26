@@ -244,6 +244,10 @@ export const api = {
       request(`/students/me/certifications/${certId}`, {
         method: 'DELETE',
       }),
+    submitProfile: () =>
+      request('/students/me/submit', {
+        method: 'POST',
+      }),
   },
 
   // Resume Service
@@ -308,6 +312,10 @@ export const api = {
       request(`/companies/me/drives/${driveId}/close`, {
         method: 'POST',
       }),
+    deleteDrive: (driveId) =>
+      request(`/companies/me/drives/${driveId}`, {
+        method: 'DELETE',
+      }),
     searchCandidates: (params = '') => request(`/companies/me/candidates${params}`),
     getDriveCandidates: (driveId, params = '') => request(`/companies/me/drives/${driveId}/candidates${params}`),
   },
@@ -365,6 +373,23 @@ export const api = {
       request(`/placement-officers/me/companies/${companyId}`, {
         method: 'DELETE',
       }),
+    getStudentProfiles: (params = '') =>
+      request(`/placement-officers/students${params}`),
+    approveStudentProfile: (profileId) =>
+      request(`/placement-officers/students/${profileId}/approve`, {
+        method: 'POST',
+      }),
+    requestProfileChanges: (profileId, remarks) =>
+      request(`/placement-officers/students/${profileId}/request-changes`, {
+        method: 'POST',
+        body: JSON.stringify({ remarks }),
+      }),
+  },
+
+  // Admin Audit Logs
+  admin: {
+    getAuditLogs: (params = '') => request(`/admin/audit-logs${params}`),
+    getAuditLog: (logId) => request(`/admin/audit-logs/${logId}`),
   },
 
   // In-App Notifications

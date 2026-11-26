@@ -1,0 +1,770 @@
+{
+	"info": {
+		"_postman_id": "placement-setu-api-collection-v2",
+		"name": "Placement Setu — Campus Recruitment API",
+		"description": "Comprehensive Postman API Collection for Gujarat Vidyapith's Placement Setu Portal. Covers Authentication, Student KYC & Resumes, Corporate Placement Drives, Recruiter Matching, Officer Approvals, and System Governance.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication & Sessions",
+			"item": [
+				{
+					"name": "Login (Student / Recruiter / Officer / Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"officer@vidyapith.edu\",\n  \"password\": \"Demo@12345\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Register Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Devam Patel\",\n  \"email\": \"devam@vidyapith.edu\",\n  \"password\": \"Password@123\",\n  \"course\": \"MCA\",\n  \"graduationYear\": 2026\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/student",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register", "student"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh"]
+						}
+					}
+				},
+				{
+					"name": "Logout Session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "logout"]
+						}
+					}
+				},
+				{
+					"name": "Change Initial Password (Mandatory for Provisioned Companies)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oldPassword\": \"Temp@123\",\n  \"newPassword\": \"Company@Secure99\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "change-password"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Student Profile & Resumes",
+			"item": [
+				{
+					"name": "Get Current Student Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/me/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["students", "me", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Update Student Profile KYC",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Devam Patel\",\n  \"phone\": \"9876543210\",\n  \"gender\": \"MALE\",\n  \"course\": \"MCA\",\n  \"institution\": \"Gujarat Vidyapith\",\n  \"graduationYear\": 2026,\n  \"apparId\": \"ABC123456789\",\n  \"cgpa\": 8.5,\n  \"backlogs\": 0,\n  \"linkedinUrl\": \"https://linkedin.com/in/devampatel\",\n  \"githubUrl\": \"https://github.com/devampatel\",\n  \"address\": \"Ahmedabad, Gujarat\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["students", "me"]
+						}
+					}
+				},
+				{
+					"name": "Submit Profile for Officer Review",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/me/submit",
+							"host": ["{{baseUrl}}"],
+							"path": ["students", "me", "submit"]
+						}
+					}
+				},
+				{
+					"name": "Upload Resume (Synchronous + Gemini AI Parsing)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resumes/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["resumes", "me"]
+						}
+					}
+				},
+				{
+					"name": "Get Student Resume Metadata",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/resumes/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["resumes", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Corporate Placement Drives",
+			"item": [
+				{
+					"name": "Create Placement Drive (DRAFT)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"jobTitle\": \"Associate Software Engineer\",\n  \"description\": \"Java and React full-stack developer role.\",\n  \"location\": \"Ahmedabad / Gandhinagar\",\n  \"driveType\": \"FULL_TIME\",\n  \"ctc\": 600000,\n  \"vacancies\": 5,\n  \"minimumCgpa\": 6.5,\n  \"maximumBacklogs\": 0,\n  \"requiredCourse\": \"MCA\",\n  \"graduationYear\": 2026,\n  \"maximumAge\": 26,\n  \"isDreamOffer\": false,\n  \"registrationStart\": \"2026-12-01T09:00:00\",\n  \"registrationEnd\": \"2026-12-15T18:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/drives",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "drives"]
+						}
+					}
+				},
+				{
+					"name": "List Company Drives (with Status & Pagination)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/drives?status=DRAFT&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "drives"],
+							"query": [
+								{ "key": "status", "value": "DRAFT" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Drive (DRAFT / REJECTED)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"jobTitle\": \"Senior Software Engineer\",\n  \"ctc\": 750000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/drives/:driveId",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "drives", ":driveId"],
+							"variable": [{ "key": "driveId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Submit Drive for Officer Approval",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/drives/:driveId/submit",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "drives", ":driveId", "submit"],
+							"variable": [{ "key": "driveId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Close Drive (PUBLISHED -> CLOSED)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/drives/:driveId/close",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "drives", ":driveId", "close"],
+							"variable": [{ "key": "driveId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Delete Drive (Non-published only)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/drives/:driveId",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "drives", ":driveId"],
+							"variable": [{ "key": "driveId", "value": "" }]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Placement Officer Desk",
+			"item": [
+				{
+					"name": "Provision Corporate Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"companyName\": \"Persistent Systems\",\n  \"email\": \"hr@persistent.com\",\n  \"contactPerson\": \"Kunal Shah\",\n  \"phone\": \"9876543210\",\n  \"gstin\": \"24AABCP1234F1Z5\",\n  \"website\": \"https://persistent.com\",\n  \"address\": \"Infocity, Gandhinagar\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/me/companies",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "me", "companies"]
+						}
+					}
+				},
+				{
+					"name": "List All Corporate Partners",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/me/companies?status=ACTIVE&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "me", "companies"],
+							"query": [
+								{ "key": "status", "value": "ACTIVE" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Activate / Suspend Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/me/companies/:companyId/activate",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "me", "companies", ":companyId", "activate"],
+							"variable": [{ "key": "companyId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Reset Company Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sendEmail\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/me/companies/:companyId/reset-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "me", "companies", ":companyId", "reset-password"],
+							"variable": [{ "key": "companyId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Review Pending Placement Drives",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/drives?status=PENDING_APPROVAL",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "drives"],
+							"query": [
+								{ "key": "status", "value": "PENDING_APPROVAL" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Approve Placement Drive",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reviewRemarks\": \"Approved for MCA 2026 batch.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/drives/:driveId/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "drives", ":driveId", "approve"],
+							"variable": [{ "key": "driveId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Reject Placement Drive",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Internship stipend does not meet university minimum bylaw threshold.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/drives/:driveId/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "drives", ":driveId", "reject"],
+							"variable": [{ "key": "driveId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Review Student KYC Profiles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/students?status=SUBMITTED&page=0&size=15",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "students"],
+							"query": [
+								{ "key": "status", "value": "SUBMITTED" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "15" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Approve Student Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/students/:profileId/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "students", ":profileId", "approve"],
+							"variable": [{ "key": "profileId", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Request Changes on Student Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"remarks\": \"Please upload clear copy of semester 4 grade sheet and verify APAAR ID.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/placement-officers/students/:profileId/request-changes",
+							"host": ["{{baseUrl}}"],
+							"path": ["placement-officers", "students", ":profileId", "request-changes"],
+							"variable": [{ "key": "profileId", "value": "" }]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Applications & Candidate Matching",
+			"item": [
+				{
+					"name": "Apply for Placement Drive (Student)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"driveId\": \"{{driveId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["applications"]
+						}
+					}
+				},
+				{
+					"name": "Get My Applications (Student)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/applications/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["applications", "me"]
+						}
+					}
+				},
+				{
+					"name": "Search Candidates & AI Match Scores (Company)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/companies/me/candidates?driveId={{driveId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["companies", "me", "candidates"],
+							"query": [
+								{ "key": "driveId", "value": "{{driveId}}" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Candidate Application Pipeline Status (Company)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"SHORTLISTED\",\n  \"remarks\": \"Selected for technical round 1.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/applications/:applicationId/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["applications", ":applicationId", "status"],
+							"variable": [{ "key": "applicationId", "value": "" }]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Notifications & System Governance",
+			"item": [
+				{
+					"name": "List In-App Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notifications?unreadOnly=false&page=0&size=15",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications"],
+							"query": [
+								{ "key": "unreadOnly", "value": "false" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "15" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notifications/:id/read",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications", ":id", "read"],
+							"variable": [{ "key": "id", "value": "" }]
+						}
+					}
+				},
+				{
+					"name": "Query System Audit Logs (ADMIN)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/audit-logs?page=0&size=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "audit-logs"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

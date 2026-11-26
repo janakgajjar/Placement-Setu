@@ -41,19 +41,21 @@ public class NotificationController {
     public ApiResponse<PagedNotificationResponse> getNotifications(
             @AuthenticationPrincipal CustomUserDetails principal,
             @RequestParam(required = false) Boolean unread,
+            @RequestParam(required = false) Boolean unreadOnly,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         UUID currentUserId = principal.getId();
-        PagedNotificationResponse response = notificationService.getUserNotifications(currentUserId, unread, pageable);
+        Boolean filterUnread = unread != null ? unread : unreadOnly;
+        PagedNotificationResponse response = notificationService.getUserNotifications(currentUserId, filterUnread, pageable);
         return ApiResponse.success("Notifications fetched successfully", response);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // PATCH /api/v1/notifications/{notificationId}/read
+    // PATCH/POST /api/v1/notifications/{notificationId}/read
     // ─────────────────────────────────────────────────────────────────────────
 
     @Operation(summary = "Mark a specific notification as read")
-    @PatchMapping("/{notificationId}/read")
+    @RequestMapping(value = "/{notificationId}/read", method = {RequestMethod.PATCH, RequestMethod.POST})
     public ApiResponse<NotificationResponseDto> markAsRead(
             @AuthenticationPrincipal CustomUserDetails principal,
             @PathVariable UUID notificationId) {

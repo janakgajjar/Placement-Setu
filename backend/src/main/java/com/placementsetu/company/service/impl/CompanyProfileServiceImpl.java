@@ -46,6 +46,7 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
     @Transactional
     public CompanyProfileResponse updateProfile(UUID userId, UpdateCompanyProfileRequest request) {
         Company company = findByUserId(userId);
+        if (request.getContactPerson() != null) company.setContactPerson(request.getContactPerson());
         if (request.getPhone() != null) company.setPhone(request.getPhone());
         if (request.getWebsite() != null) company.setWebsite(request.getWebsite());
         if (request.getAddress() != null) company.setAddress(request.getAddress());
@@ -58,13 +59,16 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
     private CompanyProfileResponse toResponse(Company company, User user) {
         return CompanyProfileResponse.builder()
                 .id(company.getId())
+                .userId(user.getId())
                 .companyName(company.getCompanyName())
+                .contactPerson(company.getContactPerson())
                 .email(user.getEmail())
                 .gstin(company.getGstin())
                 .phone(company.getPhone())
                 .website(company.getWebsite())
                 .address(company.getAddress())
                 .accountStatus(user.getAccountStatus())
+                .createdAt(company.getCreatedAt())
                 .build();
     }
 

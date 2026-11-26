@@ -37,6 +37,8 @@ import CandidateSearch from './pages/company/CandidateSearch';
 import OfficerDashboard from './pages/officer/OfficerDashboard';
 import CompanyApprovals from './pages/officer/CompanyApprovals';
 import OfficerCompanies from './pages/officer/OfficerCompanies';
+import OfficerStudents from './pages/officer/OfficerStudents';
+import AdminAuditLogs from './pages/officer/AdminAuditLogs';
 
 /**
  * Route Guard Component
@@ -127,6 +129,14 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path={ROUTES.STUDENT_DRIVES}
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <DrivesExplorer />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Company Protected Portal Routes */}
         <Route
@@ -192,6 +202,22 @@ function AppContent() {
           element={
             <ProtectedRoute allowedRoles={['PLACEMENT_OFFICER', 'ADMIN']}>
               <OfficerCompanies />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.OFFICER_STUDENTS}
+          element={
+            <ProtectedRoute allowedRoles={['PLACEMENT_OFFICER', 'ADMIN']}>
+              <OfficerStudents />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.ADMIN_AUDIT_LOGS}
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminAuditLogs />
             </ProtectedRoute>
           }
         />

@@ -51,4 +51,10 @@ public interface PlacementDriveService {
      * POST /api/v1/companies/me/drives/{driveId}/close
      */
     DriveResponse closeDrive(UUID companyId, UUID driveId);
+
+    /**
+     * Delete a placement drive owned by the company (allowed while not PUBLISHED).
+     * DELETE /api/v1/companies/me/drives/{driveId}
+     */
+    void deleteDrive(UUID companyId, UUID driveId);
 }

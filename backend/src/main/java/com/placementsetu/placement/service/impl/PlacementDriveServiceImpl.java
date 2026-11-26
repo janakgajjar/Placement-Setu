@@ -243,6 +243,22 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         return toResponse(closedDrive, getSkillNames(closedDrive.getId()));
     }
 
+    @Override
+    @Transactional
+    public void deleteDrive(UUID companyId, UUID driveId) {
+        PlacementDrive drive = requireOwnedDrive(companyId, driveId);
+        if (drive.getStatus() == DriveStatus.PUBLISHED) {
+            throw new BadRequestException("Cannot delete a PUBLISHED drive. Please close the drive instead.");
+        }
+        driveSkillRepository.deleteByDriveId(driveId);
+        driveRepository.delete(drive);
+
+        if (auditService != null) {
+            auditService.logEvent(companyId, "DRIVE_DELETED", "PLACEMENT_DRIVE", driveId,
+                    java.util.Map.of("jobTitle", drive.getJobTitle()));
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Internal helpers
     // ─────────────────────────────────────────────────────────────────────────

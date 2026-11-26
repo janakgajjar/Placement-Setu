@@ -169,7 +169,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         response.setHeader("X-RateLimit-Limit", String.valueOf(limit));
         response.setHeader("X-RateLimit-Remaining", "0");
 
-        ApiResponse<Void> apiResponse = ApiResponse.error(429, "Too Many Requests", message, null, null);
+        ApiResponse<Void> apiResponse = ApiResponse.error(message);
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
     }
 }

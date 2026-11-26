@@ -32,6 +32,8 @@ export const ROUTES = {
   OFFICER_DASHBOARD: '/officer/dashboard',
   OFFICER_APPROVALS: '/officer/approvals',
   OFFICER_COMPANIES: '/officer/companies',
+  OFFICER_STUDENTS: '/officer/students',
+  ADMIN_AUDIT_LOGS: '/admin/audit-logs',
 };
 
 export const ROLE_DEFAULT_ROUTES = {
