@@ -29,13 +29,17 @@ public class AiResumeParser {
                 You are a resume parsing engine. Read the resume text below and
                 extract information into a JSON object with EXACTLY these fields:
 
-                - name (string)
+                - name (string or null)
                 - email (string or null)
                 - phone (string or null)
                 - linkedin (string or null)
                 - github (string or null)
                 - skills (array of strings)
                 - project (array of strings or null)
+                - certifications (array of strings or null)
+                - course (string or null, e.g. MCA, B.Tech, BCA, M.Sc IT)
+                - institution (string or null, e.g. Gujarat Vidyapith)
+                - cgpa (number or null, between 0.0 and 10.0)
                 - languages (array of strings, spoken/written languages the person knows)
                 - education (string, short summary)
                 - work_experience (string, short summary)
@@ -55,7 +59,8 @@ public class AiResumeParser {
 
     private Map<String, Object> parseJsonSafely(String json) {
         try {
-            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
+            });
         } catch (Exception e) {
             Map<String, Object> fallback = new LinkedHashMap<>();
             fallback.put("error", "AI response could not be parsed");

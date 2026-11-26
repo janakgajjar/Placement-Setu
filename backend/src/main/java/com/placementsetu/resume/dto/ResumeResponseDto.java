@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -23,4 +24,5 @@ public class ResumeResponseDto {
     private LocalDateTime uploadedAt;
     /** Returned so the frontend can immediately show the AI-updated profile/skills without a second call. */
     private StudentProfileResponse updatedProfile;
+    private List<String> autoFilledFields;
 }
