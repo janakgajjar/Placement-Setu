@@ -825,9 +825,19 @@ export default function StudentProfile() {
                 <input
                   id="fullName"
                   type="text"
+                  maxLength={50}
                   className={`gv-input ${fieldErrors.fullName ? 'gv-input--error' : ''}`}
                   value={profile.fullName}
-                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (!/^[a-zA-Z ]$/.test(e.key) && e.key.length === 1) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const lettersOnly = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 50);
+                    setProfile((prev) => ({ ...prev, fullName: lettersOnly }));
+                    if (fieldErrors.fullName) setFieldErrors((prev) => ({ ...prev, fullName: null }));
+                  }}
                   placeholder="e.g. Patel Rahul Kumar"
                 />
               </div>
@@ -858,9 +868,20 @@ export default function StudentProfile() {
                 <input
                   id="phone"
                   type="tel"
+                  maxLength={10}
+                  inputMode="numeric"
                   className={`gv-input ${fieldErrors.phone ? 'gv-input--error' : ''}`}
                   value={profile.phone}
-                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (!/^[0-9]$/.test(e.key) && e.key.length === 1) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setProfile((prev) => ({ ...prev, phone: digits }));
+                    if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: null }));
+                  }}
                   placeholder="10-digit Mobile Number"
                 />
               </div>
@@ -893,9 +914,20 @@ export default function StudentProfile() {
                 <input
                   id="apparId"
                   type="text"
+                  maxLength={12}
+                  inputMode="numeric"
                   className={`gv-input ${fieldErrors.apparId ? 'gv-input--error' : ''}`}
                   value={profile.apparId}
-                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (!/^[0-9]$/.test(e.key) && e.key.length === 1) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 12);
+                    setProfile((prev) => ({ ...prev, apparId: digits }));
+                    if (fieldErrors.apparId) setFieldErrors((prev) => ({ ...prev, apparId: null }));
+                  }}
                   placeholder="12-digit Academic Bank of Credits ID"
                 />
               </div>

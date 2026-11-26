@@ -103,7 +103,15 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         if (request.getCourse() != null) profile.setCourse(request.getCourse());
         if (request.getInstitution() != null) profile.setInstitution(request.getInstitution());
         if (request.getGraduationYear() != null) profile.setGraduationYear(request.getGraduationYear());
-        if (request.getApparId() != null) profile.setApparId(request.getApparId());
+        if (request.getApparId() != null) {
+            String cleanApparId = request.getApparId().trim();
+            studentProfileRepository.findByApparId(cleanApparId).ifPresent(existing -> {
+                if (!existing.getId().equals(profile.getId())) {
+                    throw new BadRequestException("APAAR / ABC ID '" + cleanApparId + "' is already registered to another student profile.");
+                }
+            });
+            profile.setApparId(cleanApparId);
+        }
         if (request.getCgpa() != null) profile.setCgpa(request.getCgpa());
         if (request.getBacklogs() != null) profile.setBacklogs(request.getBacklogs());
         if (request.getAddress() != null) profile.setAddress(request.getAddress());

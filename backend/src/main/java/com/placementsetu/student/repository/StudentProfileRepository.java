@@ -14,5 +14,6 @@ import java.util.UUID;
 @Repository
 public interface StudentProfileRepository extends JpaRepository<StudentProfile, UUID>, JpaSpecificationExecutor<StudentProfile> {
     Optional<StudentProfile> findByUserId(UUID userId);
+    Optional<StudentProfile> findByApparId(String apparId);
     Page<StudentProfile> findByApprovalStatus(ProfileApprovalStatus approvalStatus, Pageable pageable);
 }
