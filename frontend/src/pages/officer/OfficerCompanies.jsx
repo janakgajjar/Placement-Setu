@@ -5,6 +5,15 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import FormField from '../../components/ui/FormField';
 import api from '../../lib/api';
+import {
+  validateEmail,
+  validatePassword,
+  validatePhone,
+  validateFullName,
+  validateCompanyName,
+  validateGstin,
+  validateWebsite,
+} from '../../utils/validation';
 
 const STATUS_TABS = [
   { id: 'ALL', label: 'All Partners' },
@@ -48,6 +57,7 @@ export default function OfficerCompanies() {
     sendEmail: true,
   });
   const [provisionErrors, setProvisionErrors] = useState({});
+  const [provisionTouched, setProvisionTouched] = useState({});
 
   // Edit Form state
   const [editForm, setEditForm] = useState({
@@ -60,6 +70,7 @@ export default function OfficerCompanies() {
     address: '',
   });
   const [editErrors, setEditErrors] = useState({});
+  const [editTouched, setEditTouched] = useState({});
 
   // Reset Password Form state
   const [resetForm, setResetForm] = useState({
@@ -90,7 +101,15 @@ export default function OfficerCompanies() {
       }
     } catch (err) {
       console.error('Failed to load companies:', err);
-      setError('Server is currently unavailable. Please try again later.');
+      const status = err.status || err.response?.status;
+      const msg = err.data?.message || err.response?.data?.message || err.message;
+      if (status === 403 || msg?.includes('Access Denied')) {
+        setError('Access restricted: Only authorized placement officers or administrators can view recruiter records.');
+      } else if (msg?.includes('Server unavailable') || status === 0 || status >= 500) {
+        setError('Server is currently unavailable. Please verify that the backend is running on port 8080.');
+      } else {
+        setError(msg || 'Server is currently unavailable. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -122,42 +141,82 @@ export default function OfficerCompanies() {
   // Provisioning Handlers
   // ─────────────────────────────────────────────────────────────────────────
 
+  const validateProvisionField = (field, value, currentForm = provisionForm) => {
+    switch (field) {
+      case 'companyName':
+        return validateCompanyName(value);
+      case 'email':
+        return validateEmail(value);
+      case 'contactPerson':
+        return validateFullName(value);
+      case 'phone':
+        return validatePhone(value);
+      case 'gstin':
+        return validateGstin(value);
+      case 'website':
+        return validateWebsite(value);
+      case 'temporaryPassword':
+        if (!value || !value.trim()) return null;
+        return validatePassword(value, false, currentForm.email);
+      default:
+        return null;
+    }
+  };
+
+  const handleProvisionBlur = (field) => {
+    setProvisionTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateProvisionField(field, provisionForm[field]);
+    setProvisionErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleProvisionChange = (field) => (e) => {
+    let val = e.target.value;
+    if (field === 'phone') {
+      val = val.replace(/\D/g, '').slice(0, 10);
+    } else if (field === 'contactPerson') {
+      val = val.replace(/[^a-zA-Z\s]/g, '').slice(0, 50);
+    } else if (field === 'gstin') {
+      val = val.toUpperCase().slice(0, 15);
+    }
+
+    const updated = { ...provisionForm, [field]: val };
+    setProvisionForm(updated);
+
+    if (provisionErrors.form) {
+      setProvisionErrors((prev) => ({ ...prev, form: null }));
+    }
+
+    if (provisionTouched[field] || provisionErrors[field]) {
+      const err = validateProvisionField(field, val, updated);
+      if (!err) {
+        setProvisionErrors((prev) => ({ ...prev, [field]: null }));
+      } else if (provisionTouched[field]) {
+        setProvisionErrors((prev) => ({ ...prev, [field]: err }));
+      }
+    }
+  };
+
   const validateProvisionForm = () => {
     const errs = {};
-    if (!provisionForm.companyName.trim()) {
-      errs.companyName = 'Company name is required.';
-    } else if (provisionForm.companyName.length > 100) {
-      errs.companyName = 'Company name cannot exceed 100 characters.';
+    const requiredFields = ['companyName', 'email', 'contactPerson', 'phone'];
+    requiredFields.forEach((f) => {
+      const err = validateProvisionField(f, provisionForm[f], provisionForm);
+      if (err) errs[f] = err;
+    });
+
+    if (provisionForm.gstin?.trim()) {
+      const gstinErr = validateProvisionField('gstin', provisionForm.gstin, provisionForm);
+      if (gstinErr) errs.gstin = gstinErr;
     }
 
-    if (!provisionForm.email.trim()) {
-      errs.email = 'Corporate email address is required.';
-    } else if (provisionForm.email.length > 30) {
-      errs.email = 'Email address cannot exceed 30 characters.';
-    } else if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(provisionForm.email)) {
-      errs.email = 'Please provide a valid corporate email format.';
+    if (provisionForm.website?.trim()) {
+      const webErr = validateProvisionField('website', provisionForm.website, provisionForm);
+      if (webErr) errs.website = webErr;
     }
 
-    if (!provisionForm.contactPerson.trim()) {
-      errs.contactPerson = 'Contact person name is required.';
-    }
-
-    if (!provisionForm.phone.trim()) {
-      errs.phone = '10-digit contact mobile number is required.';
-    } else if (!/^[6-9]\d{9}$/.test(provisionForm.phone.trim())) {
-      errs.phone = 'Must be a valid 10-digit Indian mobile number.';
-    }
-
-    if (provisionForm.gstin.trim() && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(provisionForm.gstin.trim())) {
-      errs.gstin = 'Must be a valid 15-character GSTIN format (e.g. 24AAAAA0000A1Z5).';
-    }
-
-    if (provisionForm.temporaryPassword.trim()) {
-      if (provisionForm.temporaryPassword.length !== 8) {
-        errs.temporaryPassword = 'Password must be exactly 8 characters.';
-      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8}$/.test(provisionForm.temporaryPassword)) {
-        errs.temporaryPassword = 'Must contain uppercase, lowercase, digit, and special char (@$!%*?&).';
-      }
+    if (provisionForm.temporaryPassword?.trim()) {
+      const pwdErr = validateProvisionField('temporaryPassword', provisionForm.temporaryPassword, provisionForm);
+      if (pwdErr) errs.temporaryPassword = pwdErr;
     }
 
     setProvisionErrors(errs);
@@ -166,6 +225,15 @@ export default function OfficerCompanies() {
 
   const handleProvisionSubmit = async (e) => {
     e.preventDefault();
+    setProvisionTouched({
+      companyName: true,
+      email: true,
+      contactPerson: true,
+      phone: true,
+      gstin: true,
+      website: true,
+      temporaryPassword: true,
+    });
     if (!validateProvisionForm()) return;
 
     setActionLoading(true);
@@ -195,18 +263,37 @@ export default function OfficerCompanies() {
         temporaryPassword: '',
         sendEmail: true,
       });
+      setProvisionTouched({});
+      setProvisionErrors({});
 
       // Display generated credentials popup
       setProvisionedCreds({
-        companyName: res.data.companyName,
-        email: res.data.email,
-        temporaryPassword: res.data.temporaryPassword,
+        companyName: res.data?.companyName || payload.companyName,
+        email: res.data?.email || payload.email,
+        temporaryPassword: res.data?.temporaryPassword || payload.temporaryPassword || '(Generated)',
       });
       setIsCredentialsOpen(true);
       loadCompanies();
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to provision company account.';
-      setProvisionErrors({ form: msg });
+      const data = err.data || err.response?.data || {};
+      if (data.fieldErrors?.length) {
+        const mapped = {};
+        data.fieldErrors.forEach((fe) => {
+          mapped[fe.field] = fe.message;
+        });
+        setProvisionErrors((prev) => ({ ...prev, ...mapped }));
+      } else if (data.errors?.length) {
+        const mapped = {};
+        data.errors.forEach((fe) => {
+          mapped[fe.field] = fe.message;
+        });
+        setProvisionErrors((prev) => ({ ...prev, ...mapped }));
+      } else if (err.message?.toLowerCase().includes('already exists') || data.message?.toLowerCase().includes('already exists')) {
+        setProvisionErrors((prev) => ({ ...prev, email: 'A user account with this email address already exists.' }));
+      } else {
+        const msg = data.message || err.message || 'Failed to provision company account.';
+        setProvisionErrors({ form: msg });
+      }
     } finally {
       setActionLoading(false);
     }
@@ -215,6 +302,56 @@ export default function OfficerCompanies() {
   // ─────────────────────────────────────────────────────────────────────────
   // Edit Handlers
   // ─────────────────────────────────────────────────────────────────────────
+
+  const validateEditField = (field, value) => {
+    switch (field) {
+      case 'companyName':
+        return validateCompanyName(value);
+      case 'contactPerson':
+        return validateFullName(value);
+      case 'phone':
+        return validatePhone(value);
+      case 'gstin':
+        return validateGstin(value);
+      case 'website':
+        return validateWebsite(value);
+      default:
+        return null;
+    }
+  };
+
+  const handleEditBlur = (field) => {
+    setEditTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateEditField(field, editForm[field]);
+    setEditErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleEditChange = (field) => (e) => {
+    let val = e.target.value;
+    if (field === 'phone') {
+      val = val.replace(/\D/g, '').slice(0, 10);
+    } else if (field === 'contactPerson') {
+      val = val.replace(/[^a-zA-Z\s]/g, '').slice(0, 50);
+    } else if (field === 'gstin') {
+      val = val.toUpperCase().slice(0, 15);
+    }
+
+    const updated = { ...editForm, [field]: val };
+    setEditForm(updated);
+
+    if (editErrors.form) {
+      setEditErrors((prev) => ({ ...prev, form: null }));
+    }
+
+    if (editTouched[field] || editErrors[field]) {
+      const err = validateEditField(field, val);
+      if (!err) {
+        setEditErrors((prev) => ({ ...prev, [field]: null }));
+      } else if (editTouched[field]) {
+        setEditErrors((prev) => ({ ...prev, [field]: err }));
+      }
+    }
+  };
 
   const openEditModal = (comp) => {
     setEditingCompany(comp);
@@ -228,22 +365,63 @@ export default function OfficerCompanies() {
       address: comp.address || '',
     });
     setEditErrors({});
+    setEditTouched({});
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    if (!editForm.companyName.trim()) {
-      setEditErrors({ companyName: 'Company name is required.' });
+    setEditTouched({
+      companyName: true,
+      contactPerson: true,
+      phone: true,
+      gstin: true,
+      website: true,
+    });
+
+    const errs = {};
+    const nameErr = validateEditField('companyName', editForm.companyName);
+    if (nameErr) errs.companyName = nameErr;
+
+    if (editForm.contactPerson?.trim()) {
+      const cpErr = validateEditField('contactPerson', editForm.contactPerson);
+      if (cpErr) errs.contactPerson = cpErr;
+    }
+
+    if (editForm.phone?.trim()) {
+      const phoneErr = validateEditField('phone', editForm.phone);
+      if (phoneErr) errs.phone = phoneErr;
+    }
+
+    if (editForm.gstin?.trim()) {
+      const gstinErr = validateEditField('gstin', editForm.gstin);
+      if (gstinErr) errs.gstin = gstinErr;
+    }
+
+    if (editForm.website?.trim()) {
+      const webErr = validateEditField('website', editForm.website);
+      if (webErr) errs.website = webErr;
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setEditErrors(errs);
       return;
     }
 
     setActionLoading(true);
     try {
-      await api.officer.updateCompany(editingCompany.id, editForm);
+      await api.officer.updateCompany(editingCompany.id, {
+        companyName: editForm.companyName.trim(),
+        contactPerson: editForm.contactPerson?.trim() || null,
+        phone: editForm.phone?.trim() || null,
+        gstin: editForm.gstin?.trim() ? editForm.gstin.trim().toUpperCase() : null,
+        website: editForm.website?.trim() || null,
+        address: editForm.address?.trim() || null,
+      });
       setEditingCompany(null);
       loadCompanies();
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to update company details.';
+      const data = err.data || err.response?.data || {};
+      const msg = data.message || err.message || 'Failed to update company details.';
       setEditErrors({ form: msg });
     } finally {
       setActionLoading(false);
@@ -289,12 +467,9 @@ export default function OfficerCompanies() {
   const handleResetSubmit = async (e) => {
     e.preventDefault();
     if (resetForm.newPassword.trim()) {
-      if (resetForm.newPassword.length !== 8) {
-        setResetErrors({ newPassword: 'Password must be exactly 8 characters.' });
-        return;
-      }
-      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8}$/.test(resetForm.newPassword)) {
-        setResetErrors({ newPassword: 'Must contain uppercase, lowercase, digit, and special char (@$!%*?&).' });
+      const pwdErr = validatePassword(resetForm.newPassword.trim(), false, resettingCompany?.email || '');
+      if (pwdErr) {
+        setResetErrors({ newPassword: pwdErr });
         return;
       }
     }
@@ -463,16 +638,33 @@ export default function OfficerCompanies() {
             style={{
               backgroundColor: '#FFEBEE',
               color: '#C62828',
-              padding: '12px',
+              padding: '12px 16px',
               borderRadius: '4px',
               marginBottom: '16px',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              justifyContent: 'space-between',
+              gap: '12px',
+              border: '1px solid #EF9A9A',
             }}
           >
-            <span>⚠️</span>
-            <span>{error}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+            <button
+              type="button"
+              onClick={loadCompanies}
+              className="gv-btn gv-btn--sm gv-btn--secondary"
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              🔄 Retry
+            </button>
           </div>
         )}
 
@@ -767,16 +959,15 @@ export default function OfficerCompanies() {
               <form onSubmit={handleProvisionSubmit} noValidate>
                 <FormField
                   id="companyName"
-                  label="Company Name"
+                  label="Company Legal Name"
                   required
                   value={provisionForm.companyName}
-                  onChange={(e) => {
-                    setProvisionForm({ ...provisionForm, companyName: e.target.value });
-                    if (provisionErrors.companyName) setProvisionErrors({ ...provisionErrors, companyName: '' });
-                  }}
+                  maxLength={100}
+                  onBlur={() => handleProvisionBlur('companyName')}
+                  onChange={handleProvisionChange('companyName')}
                   placeholder="e.g. Tata Consultancy Services"
                   error={provisionErrors.companyName}
-                  maxLength={100}
+                  helpText="Registered enterprise name (2-100 characters)"
                 />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -786,13 +977,13 @@ export default function OfficerCompanies() {
                     type="email"
                     required
                     value={provisionForm.email}
-                    onChange={(e) => {
-                      setProvisionForm({ ...provisionForm, email: e.target.value });
-                      if (provisionErrors.email) setProvisionErrors({ ...provisionErrors, email: '' });
-                    }}
+                    maxLength={120}
+                    autoComplete="email"
+                    onBlur={() => handleProvisionBlur('email')}
+                    onChange={handleProvisionChange('email')}
                     placeholder="campus@company.com"
                     error={provisionErrors.email}
-                    maxLength={30}
+                    helpText="Valid corporate HR email format"
                   />
 
                   <FormField
@@ -800,52 +991,69 @@ export default function OfficerCompanies() {
                     label="Contact Person Name"
                     required
                     value={provisionForm.contactPerson}
-                    onChange={(e) => {
-                      setProvisionForm({ ...provisionForm, contactPerson: e.target.value });
-                      if (provisionErrors.contactPerson) setProvisionErrors({ ...provisionErrors, contactPerson: '' });
+                    maxLength={50}
+                    autoComplete="name"
+                    pattern="[a-zA-Z\s]+"
+                    onKeyDown={(e) => {
+                      if (!/^[a-zA-Z ]$/.test(e.key) && e.key.length === 1) {
+                        e.preventDefault();
+                      }
                     }}
+                    onBlur={() => handleProvisionBlur('contactPerson')}
+                    onChange={handleProvisionChange('contactPerson')}
                     placeholder="e.g. Ramesh Patel"
                     error={provisionErrors.contactPerson}
-                    maxLength={60}
+                    helpText="Letters and spaces only (max 50 chars)"
                   />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <FormField
                     id="phone"
-                    label="Contact Phone"
+                    label="Contact Mobile / Phone"
+                    type="tel"
                     required
                     value={provisionForm.phone}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setProvisionForm({ ...provisionForm, phone: val });
-                      if (provisionErrors.phone) setProvisionErrors({ ...provisionErrors, phone: '' });
+                    maxLength={10}
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                    autoComplete="tel"
+                    onKeyDown={(e) => {
+                      if (!/^[0-9]$/.test(e.key) && e.key.length === 1) {
+                        e.preventDefault();
+                      }
                     }}
+                    onBlur={() => handleProvisionBlur('phone')}
+                    onChange={handleProvisionChange('phone')}
                     placeholder="10-digit mobile number"
                     error={provisionErrors.phone}
-                    maxLength={10}
+                    helpText="Exactly 10 digits (e.g. 9876543210)"
                   />
 
                   <FormField
                     id="gstin"
                     label="GSTIN (15 characters)"
                     value={provisionForm.gstin}
-                    onChange={(e) => {
-                      setProvisionForm({ ...provisionForm, gstin: e.target.value.toUpperCase() });
-                      if (provisionErrors.gstin) setProvisionErrors({ ...provisionErrors, gstin: '' });
-                    }}
+                    maxLength={15}
+                    onBlur={() => handleProvisionBlur('gstin')}
+                    onChange={handleProvisionChange('gstin')}
                     placeholder="24AAAAA0000A1Z5"
                     error={provisionErrors.gstin}
-                    maxLength={15}
+                    helpText="15-character Indian GST format (Optional)"
                   />
                 </div>
 
                 <FormField
                   id="website"
                   label="Official Website URL"
+                  type="url"
                   value={provisionForm.website}
-                  onChange={(e) => setProvisionForm({ ...provisionForm, website: e.target.value })}
+                  maxLength={255}
+                  onBlur={() => handleProvisionBlur('website')}
+                  onChange={handleProvisionChange('website')}
                   placeholder="https://www.company.com"
+                  error={provisionErrors.website}
+                  helpText="Optional (e.g. https://www.company.com)"
                 />
 
                 <FormField
@@ -853,7 +1061,8 @@ export default function OfficerCompanies() {
                   as="textarea"
                   label="Corporate Address / Location"
                   value={provisionForm.address}
-                  onChange={(e) => setProvisionForm({ ...provisionForm, address: e.target.value })}
+                  maxLength={255}
+                  onChange={handleProvisionChange('address')}
                   placeholder="Ahmedabad, Gujarat"
                   rows={2}
                 />
@@ -863,14 +1072,12 @@ export default function OfficerCompanies() {
                   label="Temporary Password (Optional)"
                   type="password"
                   value={provisionForm.temporaryPassword}
-                  onChange={(e) => {
-                    setProvisionForm({ ...provisionForm, temporaryPassword: e.target.value });
-                    if (provisionErrors.temporaryPassword) setProvisionErrors({ ...provisionErrors, temporaryPassword: '' });
-                  }}
+                  maxLength={128}
+                  onBlur={() => handleProvisionBlur('temporaryPassword')}
+                  onChange={handleProvisionChange('temporaryPassword')}
                   placeholder="Leave blank to auto-generate (e.g. Gv@abc12)"
                   error={provisionErrors.temporaryPassword}
-                  maxLength={8}
-                  helpText="If blank, system generates an 8-char password. Recruiter MUST change it on first login."
+                  helpText="If blank, system generates a secure password. Recruiter must change on first login."
                 />
 
                 <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1100,13 +1307,15 @@ export default function OfficerCompanies() {
                 </div>
               )}
 
-              <form onSubmit={handleEditSubmit}>
+              <form onSubmit={handleEditSubmit} noValidate>
                 <FormField
                   id="editCompanyName"
                   label="Company Name"
                   required
                   value={editForm.companyName}
-                  onChange={(e) => setEditForm({ ...editForm, companyName: e.target.value })}
+                  maxLength={100}
+                  onBlur={() => handleEditBlur('companyName')}
+                  onChange={handleEditChange('companyName')}
                   error={editErrors.companyName}
                 />
 
@@ -1115,13 +1324,33 @@ export default function OfficerCompanies() {
                     id="editContactPerson"
                     label="Contact Person"
                     value={editForm.contactPerson}
-                    onChange={(e) => setEditForm({ ...editForm, contactPerson: e.target.value })}
+                    maxLength={50}
+                    pattern="[a-zA-Z\s]+"
+                    onKeyDown={(e) => {
+                      if (!/^[a-zA-Z ]$/.test(e.key) && e.key.length === 1) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onBlur={() => handleEditBlur('contactPerson')}
+                    onChange={handleEditChange('contactPerson')}
+                    error={editErrors.contactPerson}
                   />
                   <FormField
                     id="editPhone"
                     label="Contact Phone"
+                    type="tel"
                     value={editForm.phone}
-                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    maxLength={10}
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                    onKeyDown={(e) => {
+                      if (!/^[0-9]$/.test(e.key) && e.key.length === 1) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onBlur={() => handleEditBlur('phone')}
+                    onChange={handleEditChange('phone')}
+                    error={editErrors.phone}
                   />
                 </div>
 
@@ -1130,13 +1359,20 @@ export default function OfficerCompanies() {
                     id="editGstin"
                     label="GSTIN"
                     value={editForm.gstin}
-                    onChange={(e) => setEditForm({ ...editForm, gstin: e.target.value.toUpperCase() })}
+                    maxLength={15}
+                    onBlur={() => handleEditBlur('gstin')}
+                    onChange={handleEditChange('gstin')}
+                    error={editErrors.gstin}
                   />
                   <FormField
                     id="editWebsite"
                     label="Website URL"
+                    type="url"
                     value={editForm.website}
-                    onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                    maxLength={255}
+                    onBlur={() => handleEditBlur('website')}
+                    onChange={handleEditChange('website')}
+                    error={editErrors.website}
                   />
                 </div>
 
@@ -1145,7 +1381,8 @@ export default function OfficerCompanies() {
                   as="textarea"
                   label="Address / Location"
                   value={editForm.address}
-                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  maxLength={255}
+                  onChange={handleEditChange('address')}
                   rows={2}
                 />
 

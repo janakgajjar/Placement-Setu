@@ -105,8 +105,9 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         if (request.getGraduationYear() != null) profile.setGraduationYear(request.getGraduationYear());
         if (request.getApparId() != null) {
             String cleanApparId = request.getApparId().trim();
+            final UUID currentProfileId = profile.getId();
             studentProfileRepository.findByApparId(cleanApparId).ifPresent(existing -> {
-                if (!existing.getId().equals(profile.getId())) {
+                if (!existing.getId().equals(currentProfileId)) {
                     throw new BadRequestException("APAAR / ABC ID '" + cleanApparId + "' is already registered to another student profile.");
                 }
             });

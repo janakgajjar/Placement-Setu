@@ -28,7 +28,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/placement-officers/drives")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PLACEMENT_OFFICER')")
+@PreAuthorize("hasAnyRole('PLACEMENT_OFFICER', 'ADMIN')")
 public class OfficerDriveController {
 
     private final OfficerDriveService officerDriveService;

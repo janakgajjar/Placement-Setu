@@ -5,6 +5,11 @@ import FormField from '../../components/ui/FormField';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import api from '../../lib/api';
+import {
+  validateFullName,
+  validatePhone,
+  validateWebsite,
+} from '../../utils/validation';
 
 export default function CompanyProfile() {
   const [profile, setProfile] = useState({
@@ -21,6 +26,8 @@ export default function CompanyProfile() {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     async function loadData() {
@@ -47,20 +54,75 @@ export default function CompanyProfile() {
     loadData();
   }, []);
 
-  const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.id]: e.target.value });
+  const validateField = (field, value) => {
+    switch (field) {
+      case 'contactPerson':
+        return validateFullName(value);
+      case 'phone':
+        return validatePhone(value);
+      case 'website':
+        return validateWebsite(value);
+      default:
+        return null;
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateField(field, profile[field]);
+    setFieldErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleChange = (field) => (e) => {
+    let val = e.target.value;
+    if (field === 'phone') {
+      val = val.replace(/\D/g, '').slice(0, 10);
+    } else if (field === 'contactPerson') {
+      val = val.replace(/[^a-zA-Z\s]/g, '').slice(0, 50);
+    }
+
+    const updated = { ...profile, [field]: val };
+    setProfile(updated);
+
+    if (touched[field] || fieldErrors[field]) {
+      const err = validateField(field, val);
+      if (!err) {
+        setFieldErrors((prev) => ({ ...prev, [field]: null }));
+      } else if (touched[field]) {
+        setFieldErrors((prev) => ({ ...prev, [field]: err }));
+      }
+    }
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setTouched({ contactPerson: true, phone: true, website: true });
+
+    const errs = {};
+    const cpErr = validateField('contactPerson', profile.contactPerson);
+    if (cpErr) errs.contactPerson = cpErr;
+
+    const phoneErr = validateField('phone', profile.phone);
+    if (phoneErr) errs.phone = phoneErr;
+
+    if (profile.website?.trim()) {
+      const webErr = validateField('website', profile.website);
+      if (webErr) errs.website = webErr;
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
       await api.company.updateProfile({
         contactPerson: profile.contactPerson.trim(),
         phone: profile.phone.trim(),
-        website: profile.website.trim(),
-        address: profile.address.trim(),
+        website: profile.website?.trim() || null,
+        address: profile.address?.trim() || null,
       });
       setShowSuccess(true);
     } catch (err) {
@@ -94,7 +156,7 @@ export default function CompanyProfile() {
             Loading enterprise profile...
           </div>
         ) : (
-          <form onSubmit={handleSave}>
+          <form onSubmit={handleSave} noValidate>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <FormField
                 id="companyName"
@@ -126,8 +188,18 @@ export default function CompanyProfile() {
                 id="contactPerson"
                 label="Primary Contact Person / HR Lead"
                 value={profile.contactPerson}
-                onChange={handleChange}
-                placeholder="e.g. Talent Acquisition Lead"
+                maxLength={50}
+                pattern="[a-zA-Z\s]+"
+                onKeyDown={(e) => {
+                  if (!/^[a-zA-Z ]$/.test(e.key) && e.key.length === 1) {
+                    e.preventDefault();
+                  }
+                }}
+                onBlur={() => handleBlur('contactPerson')}
+                onChange={handleChange('contactPerson')}
+                placeholder="e.g. Ramesh Patel"
+                error={fieldErrors.contactPerson}
+                helpText="Letters and spaces only (max 50 chars)"
               />
             </div>
 
@@ -135,9 +207,22 @@ export default function CompanyProfile() {
               <FormField
                 id="phone"
                 label="Recruiter Phone / Landline"
+                type="tel"
                 value={profile.phone}
-                onChange={handleChange}
+                maxLength={10}
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                onKeyDown={(e) => {
+                  if (!/^[0-9]$/.test(e.key) && e.key.length === 1) {
+                    e.preventDefault();
+                  }
+                }}
+                onBlur={() => handleBlur('phone')}
+                onChange={handleChange('phone')}
+                placeholder="10-digit mobile number"
+                error={fieldErrors.phone}
                 required
+                helpText="Exactly 10 digits"
               />
 
               <FormField
@@ -145,8 +230,12 @@ export default function CompanyProfile() {
                 label="Corporate Website URL"
                 type="url"
                 value={profile.website}
-                onChange={handleChange}
+                maxLength={255}
+                onBlur={() => handleBlur('website')}
+                onChange={handleChange('website')}
                 placeholder="https://company.com"
+                error={fieldErrors.website}
+                helpText="Optional"
               />
             </div>
 
@@ -156,7 +245,8 @@ export default function CompanyProfile() {
               as="textarea"
               rows={3}
               value={profile.address}
-              onChange={handleChange}
+              maxLength={255}
+              onChange={(e) => setProfile({ ...profile, address: e.target.value })}
               placeholder="Full postal address"
             />
 

@@ -32,7 +32,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/placement-officers/me/companies")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PLACEMENT_OFFICER')")
+@PreAuthorize("hasAnyRole('PLACEMENT_OFFICER', 'ADMIN')")
 public class OfficerCompanyController {
 
     private final OfficerCompanyService officerCompanyService;

@@ -21,7 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/placement-officers/me/notifications")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('PLACEMENT_OFFICER')")
+@PreAuthorize("hasAnyRole('PLACEMENT_OFFICER', 'ADMIN')")
 public class OfficerNotificationController {
 
     private final NotificationService notificationService;
