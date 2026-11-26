@@ -2,6 +2,9 @@ package com.placementsetu.placement.controller;
 
 import com.placementsetu.common.ApiResponse;
 import com.placementsetu.common.enums.DriveStatus;
+import com.placementsetu.company.entity.Company;
+import com.placementsetu.company.repository.CompanyRepository;
+import com.placementsetu.exception.ResourceNotFoundException;
 import com.placementsetu.placement.dto.CreateDriveRequest;
 import com.placementsetu.placement.dto.DriveResponse;
 import com.placementsetu.placement.dto.UpdateDriveRequest;
@@ -27,7 +30,11 @@ import java.util.UUID;
  * Base path: /api/v1/companies/me/drives
  *
  * Drive lifecycle (enforced by the service layer):
- *   DRAFT ──[publish]──▶ PUBLISHED ──[close]──▶ CLOSED
+ *   DRAFT ──[submit]──▶ PENDING_APPROVAL ──[PO approve]──▶ PUBLISHED ──[close]──▶ CLOSED
+ *                              │
+ *                         [PO reject]
+ *                              ▼
+ *                           REJECTED ──[edit & submit]──▶ PENDING_APPROVAL
  */
 @Tag(name = "Company Drives", description = "Company-owned placement drive management")
 @RestController
@@ -37,6 +44,7 @@ import java.util.UUID;
 public class PlacementDriveController {
 
     private final PlacementDriveService placementDriveService;
+    private final CompanyRepository companyRepository;
 
     // ─────────────────────────────────────────────────────────────────────────
     // POST /api/v1/companies/me/drives
@@ -89,7 +97,7 @@ public class PlacementDriveController {
     // PUT /api/v1/companies/me/drives/{driveId}
     // ─────────────────────────────────────────────────────────────────────────
 
-    @Operation(summary = "Update a drive (only allowed while in DRAFT state)")
+    @Operation(summary = "Update a drive (only allowed while in DRAFT or REJECTED state)")
     @PutMapping("/{driveId}")
     public ApiResponse<DriveResponse> updateDrive(
             @AuthenticationPrincipal CustomUserDetails principal,
@@ -102,18 +110,18 @@ public class PlacementDriveController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/v1/companies/me/drives/{driveId}/publish
+    // POST /api/v1/companies/me/drives/{driveId}/submit
     // ─────────────────────────────────────────────────────────────────────────
 
-    @Operation(summary = "Publish a DRAFT drive — transitions status to PUBLISHED")
-    @PostMapping("/{driveId}/publish")
-    public ApiResponse<DriveResponse> publishDrive(
+    @Operation(summary = "Submit a DRAFT or REJECTED drive for Placement Officer approval")
+    @PostMapping("/{driveId}/submit")
+    public ApiResponse<DriveResponse> submitDriveForApproval(
             @AuthenticationPrincipal CustomUserDetails principal,
             @PathVariable UUID driveId) {
 
         UUID companyId = resolveCompanyId(principal);
-        DriveResponse response = placementDriveService.publishDrive(companyId, driveId);
-        return ApiResponse.success("Placement drive published successfully", response);
+        DriveResponse response = placementDriveService.submitDriveForApproval(companyId, driveId);
+        return ApiResponse.success("Placement drive submitted for Placement Officer approval", response);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -136,10 +144,11 @@ public class PlacementDriveController {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * The company's User.id == the companyId used in CompanyProfileService.
-     * The Company entity stores userId as its ownership key.
+     * Resolves the Company primary key (companies.id) from the authenticated user's ID (users.id).
      */
     private UUID resolveCompanyId(CustomUserDetails principal) {
-        return principal.getId();
+        return companyRepository.findByUserId(principal.getId())
+                .map(Company::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company profile not found for user"));
     }
 }

@@ -2,6 +2,7 @@ package com.placementsetu.config;
 
 import com.placementsetu.security.JwtAuthenticationEntryPoint;
 import com.placementsetu.security.JwtFilter;
+import com.placementsetu.security.RateLimitingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Stateless REST API security:
- *  - No sessions (JWT on every request)
- *  - Auth endpoints are public; everything else requires a valid access token
- *  - Method-level RBAC (@PreAuthorize("hasRole('ADMIN')") etc.) enabled for later modules
+ * - No sessions (JWT on every request)
+ * - Auth endpoints are public; everything else requires a valid access token
+ * - Method-level RBAC (@PreAuthorize("hasRole('ADMIN')") etc.) enabled for
+ * later modules
  */
 @Configuration
 @EnableWebSecurity
@@ -27,36 +29,49 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private final CorsConfigurationSource corsConfigurationSource;
+        private final JwtFilter jwtFilter;
+        private final RateLimitingFilter rateLimitingFilter;
+        private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+        private final CorsConfigurationSource corsConfigurationSource;
 
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/auth/**",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/actuator/health"
-    };
+        private static final String[] PUBLIC_ENDPOINTS = {
+                        "/api/v1/auth/**",
+                        "/api/v1/public/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/actuator/**",
+                        "/health",
+                        "/api/v1/health"
+        };
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.disable())
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                                .csrf(csrf -> csrf.disable())
+                                .headers(headers -> headers
+                                                .frameOptions(frame -> frame.deny())
+                                                .contentTypeOptions(org.springframework.security.config.Customizer
+                                                                .withDefaults())
+                                                .httpStrictTransportSecurity(hsts -> hsts
+                                                                .includeSubDomains(true)
+                                                                .maxAgeInSeconds(31536000))
+                                                .referrerPolicy(ref -> ref.policy(
+                                                                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
+                                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
+                                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                                                .anyRequest().authenticated())
+                                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+                return config.getAuthenticationManager();
+        }
 }

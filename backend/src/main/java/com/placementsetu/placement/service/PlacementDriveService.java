@@ -35,16 +35,16 @@ public interface PlacementDriveService {
     DriveResponse getDrive(UUID companyId, UUID driveId);
 
     /**
-     * Update drive fields while it is still in DRAFT state.
+     * Update drive fields while it is in DRAFT or REJECTED state.
      * PUT /api/v1/companies/me/drives/{driveId}
      */
     DriveResponse updateDrive(UUID companyId, UUID driveId, UpdateDriveRequest request);
 
     /**
-     * Transition a DRAFT drive to PUBLISHED.
-     * POST /api/v1/companies/me/drives/{driveId}/publish
+     * Submit a DRAFT or REJECTED drive for Placement Officer approval — transitions to PENDING_APPROVAL.
+     * POST /api/v1/companies/me/drives/{driveId}/submit
      */
-    DriveResponse publishDrive(UUID companyId, UUID driveId);
+    DriveResponse submitDriveForApproval(UUID companyId, UUID driveId);
 
     /**
      * Transition a PUBLISHED drive to CLOSED.

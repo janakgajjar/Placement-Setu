@@ -55,6 +55,21 @@ public class User {
     @Builder.Default
     private AccountStatus accountStatus = AccountStatus.PENDING;
 
+    @Column(name = "must_change_password", nullable = false)
+    @Builder.Default
+    private boolean mustChangePassword = false;
+
+    @Column(name = "failed_attempt_count", nullable = false)
+    @Builder.Default
+    private int failedAttemptCount = 0;
+
+    @Column(name = "lockout_until")
+    private LocalDateTime lockoutUntil;
+
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private boolean emailVerified = true;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
@@ -65,5 +80,18 @@ public class User {
 
     public boolean isActive() {
         return accountStatus == AccountStatus.ACTIVE;
+    }
+
+    public boolean isLockedOut() {
+        return lockoutUntil != null && lockoutUntil.isAfter(LocalDateTime.now());
+    }
+
+    public void incrementFailedAttempts() {
+        this.failedAttemptCount++;
+    }
+
+    public void resetLockout() {
+        this.failedAttemptCount = 0;
+        this.lockoutUntil = null;
     }
 }

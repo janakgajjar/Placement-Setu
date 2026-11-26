@@ -36,6 +36,9 @@ public class Company {
     @Column(name = "company_name", nullable = false, length = 200)
     private String companyName;
 
+    @Column(name = "contact_person", length = 150)
+    private String contactPerson;
+
     @Column(name = "gstin", unique = true, length = 20)
     private String gstin;
 

@@ -103,4 +103,36 @@ public class FileTextExtractor {
                 "Unsupported file type: " + fileName
         );
     }
+
+    public String extractTextFromBytes(byte[] bytes, String fileName) throws IOException {
+        if (fileName == null || bytes == null) {
+            throw new IllegalArgumentException("File name or data is missing");
+        }
+
+        String lowerFileName = fileName.toLowerCase();
+
+        if (lowerFileName.endsWith(".txt")) {
+            return new String(bytes, StandardCharsets.UTF_8);
+        }
+
+        if (lowerFileName.endsWith(".pdf")) {
+            var document = Loader.loadPDF(bytes);
+            PDFTextStripper stripper = new PDFTextStripper();
+            return stripper.getText(document);
+        }
+
+        if (lowerFileName.endsWith(".docx")) {
+            try (java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(bytes);
+                 XWPFDocument document = new XWPFDocument(bis)) {
+                StringBuilder text = new StringBuilder();
+                document.getParagraphs().forEach(p -> text.append(p.getText()).append("\n"));
+                document.getTables().forEach(table ->
+                        table.getRows().forEach(row ->
+                                row.getTableCells().forEach(cell -> text.append(cell.getText()).append("\n"))));
+                return text.toString();
+            }
+        }
+
+        throw new IllegalArgumentException("Unsupported file type: " + fileName);
+    }
 }

@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,7 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** Foundation entity for Section 21 item 24 (application tracking). Not yet exposed via API. */
+/** Application entity representing a student's application to a placement drive. */
 @Getter
 @Setter
 @Builder
@@ -41,8 +39,7 @@ public class Application {
     private UUID placementDriveId;
 
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "status", nullable = false, columnDefinition = "application_status")
+    @Column(name = "status", nullable = false, length = 50)
     @Builder.Default
     private ApplicationStatus status = ApplicationStatus.APPLIED;
 

@@ -43,10 +43,10 @@ public class Resume {
     @Column(name = "student_profile_id", nullable = false, unique = true)
     private UUID studentProfileId;
 
-    @Column(name = "file_name", nullable = false)
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
-    @Column(name = "file_type")
+    @Column(name = "file_type", length = 255)
     private String fileType;
 
     @Column(name = "file_size")

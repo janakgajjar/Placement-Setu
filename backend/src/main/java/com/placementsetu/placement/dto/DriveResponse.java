@@ -34,7 +34,18 @@ public class DriveResponse {
     private Short graduationYear;
     private LocalDateTime registrationStart;
     private LocalDateTime registrationEnd;
+    private String driveType;
+    private BigDecimal stipend;
+    private Integer maximumAge;
+    private Boolean isDreamOffer;
     private DriveStatus status;
+    private String rejectionReason;
+    private String reviewRemarks;
+    private LocalDateTime submittedAt;
+    private UUID reviewedBy;
+    private LocalDateTime reviewedAt;
+    private String companyName;
+    private String companyWebsite;
 
     /** Skill names associated with this drive. */
     private List<String> skills;

@@ -1,10 +1,12 @@
 package com.placementsetu.resume.ai;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@PreAuthorize("hasRole('ADMIN')")
 public class AiTestController {
 
     private final GeminiClient geminiClient;
