@@ -38,7 +38,7 @@ ALTER TABLE placement_drives
     ALTER COLUMN status TYPE drive_status_new
     USING status::text::drive_status_new;
 
-DROP TYPE drive_status;
+DROP TYPE IF EXISTS drive_status CASCADE;
 ALTER TYPE drive_status_new RENAME TO drive_status;
 
 ALTER TABLE placement_drives
