@@ -45,7 +45,7 @@ public class AuditLog {
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    @Column(name = "ip_address", columnDefinition = "inet")
+    @Column(name = "ip_address", length = 45)
     private String ipAddress;
 
     @JdbcTypeCode(SqlTypes.JSON)

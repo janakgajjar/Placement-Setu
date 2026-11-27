@@ -45,13 +45,11 @@ public class User {
     private String passwordHash; // BCrypt hash — never expose via DTO
 
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "role", nullable = false, columnDefinition = "user_role")
+    @Column(name = "role", nullable = false, length = 30)
     private UserRole role;
 
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "account_status", nullable = false, columnDefinition = "account_status")
+    @Column(name = "account_status", nullable = false, length = 30)
     @Builder.Default
     private AccountStatus accountStatus = AccountStatus.PENDING;
 
