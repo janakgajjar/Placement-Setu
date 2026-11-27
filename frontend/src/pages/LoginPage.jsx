@@ -123,7 +123,9 @@ export default function LoginPage() {
         String(data.message || '').toLowerCase().includes('locked');
 
       // 1. Map backend field errors if provided
-      if (data.fieldErrors?.length) {
+      if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
+        setFieldErrors((prev) => ({ ...prev, ...err.fieldErrors }));
+      } else if (data.fieldErrors?.length) {
         const mapped = {};
         data.fieldErrors.forEach((fe) => {
           mapped[fe.field] = fe.message;

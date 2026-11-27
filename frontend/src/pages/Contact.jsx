@@ -33,28 +33,28 @@ export default function Contact() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.95rem' }}>
               <div>
-                <strong>📍 Campus Address:</strong>
+                <strong> Campus Address:</strong>
                 <p style={{ color: 'var(--gv-text-muted)', marginTop: '2px' }}>
                   {INSTITUTION.CAMPUS_ADDRESS}
                 </p>
               </div>
 
               <div>
-                <strong>📞 Telephones:</strong>
+                <strong> Telephones:</strong>
                 <p style={{ color: 'var(--gv-text-muted)', marginTop: '2px' }}>
                   {INSTITUTION.HELPLINE} (Mon - Sat: 10:30 AM to 5:30 PM)
                 </p>
               </div>
 
               <div>
-                <strong>✉️ Email Address:</strong>
+                <strong>Email Address:</strong>
                 <p style={{ color: 'var(--gv-text-muted)', marginTop: '2px' }}>
                   <a href={`mailto:${INSTITUTION.EMAIL}`}>{INSTITUTION.EMAIL}</a>
                 </p>
               </div>
 
               <div>
-                <strong>🏛️ Key Officers:</strong>
+                <strong> Key Officers:</strong>
                 <p style={{ color: 'var(--gv-text-muted)', marginTop: '2px' }}>
                   {INSTITUTION.OFFICER_NAME}
                 </p>

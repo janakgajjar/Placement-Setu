@@ -199,14 +199,14 @@ export default function CandidateSearch() {
         >
           <div>
             <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--gv-primary, #563828)', textTransform: 'uppercase' }}>
-              🎯 Drive Match Mode
+              Drive Match Mode
             </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '4px 0', color: '#333' }}>
               {driveDetails.jobTitle}
             </h2>
             <div style={{ fontSize: '0.85rem', color: '#666', display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-              <span>📍 {driveDetails.location || 'Gujarat'}</span>
-              <span>💰 {driveDetails.ctc ? `₹${(driveDetails.ctc / 100000).toFixed(1)} LPA` : 'Competitive'}</span>
+              <span> {driveDetails.location || 'Gujarat'}</span>
+              <span> {driveDetails.ctc ? `₹${(driveDetails.ctc / 100000).toFixed(1)} LPA` : 'Competitive'}</span>
               <span>Min CGPA: <strong>{driveDetails.minimumCgpa || 'None'}</strong></span>
               <span>Max Backlogs: <strong>{driveDetails.maximumBacklogs ?? 'Any'}</strong></span>
               <span>Course: <strong>{driveDetails.requiredCourse || 'Any'}</strong></span>
@@ -394,7 +394,7 @@ export default function CandidateSearch() {
           {driveIdParam && <span style={{ color: 'var(--gv-primary, #563828)' }}> (Ranked by Match Score)</span>}
         </div>
         <div style={{ fontSize: '0.78rem', color: '#666' }}>
-          🔒 Privacy Safeguard: Contact info visible only for applicants
+          Privacy Safeguard: Contact info visible only for applicants
         </div>
       </div>
 
@@ -410,7 +410,7 @@ export default function CandidateSearch() {
             marginBottom: '16px',
           }}
         >
-          ⚠️ {error}
+           {error}
         </div>
       )}
 
@@ -478,7 +478,7 @@ export default function CandidateSearch() {
                     </div>
 
                     <div style={{ fontSize: '0.85rem', color: '#555', marginTop: '4px' }}>
-                      🎓 <strong>{cand.course || 'Degree Program'}</strong> · {cand.institution || 'Gujarat Vidyapith'}
+                       <strong>{cand.course || 'Degree Program'}</strong> · {cand.institution || 'Gujarat Vidyapith'}
                       {cand.graduationYear && ` (Class of ${cand.graduationYear})`}
                     </div>
                   </div>
@@ -621,8 +621,8 @@ export default function CandidateSearch() {
                   {cand.applied ? (
                     <div style={{ fontSize: '0.82rem', color: '#333', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
                       <span style={{ color: '#2E7D32', fontWeight: 700 }}>✓ Verified Applicant:</span>
-                      {cand.email && <span>✉️ <strong>{cand.email}</strong></span>}
-                      {cand.phone && <span>📞 <strong>{cand.phone}</strong></span>}
+                      {cand.email && <span> <strong>{cand.email}</strong></span>}
+                      {cand.phone && <span><strong>{cand.phone}</strong></span>}
                       {cand.linkedinUrl && (
                         <a href={cand.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gv-primary, #563828)' }}>
                           LinkedIn ↗
@@ -636,7 +636,7 @@ export default function CandidateSearch() {
                     </div>
                   ) : (
                     <div style={{ fontSize: '0.78rem', color: '#888', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>🔒</span>
+                      <span></span>
                       <span>Contact details (email, phone, address) protected per Vidyapith privacy policy. Revealed upon application submission.</span>
                     </div>
                   )}

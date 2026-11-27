@@ -142,14 +142,14 @@ export default function StudentDashboard() {
         >
           <div>
             <strong style={{ color: '#E65100', fontSize: '0.95rem' }}>
-              ⚠️ Candidate Profile Incomplete — Not Visible to Recruiters
+               Candidate Profile Incomplete — Not Visible to Recruiters
             </strong>
             <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#B26A00' }}>
               Missing requirements: <strong>{missingFields.join(', ')}</strong>. Complete your profile KYC or upload your resume to unlock campus applications.
             </p>
           </div>
           <Link to={ROUTES.STUDENT_PROFILE} className="gv-btn gv-btn--primary gv-btn--sm">
-            Complete Profile KYC →
+            Complete Profile KYC 
           </Link>
         </div>
       ) : null}
@@ -200,7 +200,7 @@ export default function StudentDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.88rem' }}>
               <div><strong>Full Name:</strong> {profile?.fullName || user?.email}</div>
               <div><strong>Registered Email:</strong> {user?.email}</div>
-              <div><strong>Mobile Phone:</strong> {profile?.phone || <span style={{ color: '#E65100' }}>⚠️ Missing</span>}</div>
+              <div><strong>Mobile Phone:</strong> {profile?.phone || <span style={{ color: '#E65100' }}> Missing</span>}</div>
               <div>
                 <strong>LinkedIn:</strong>{' '}
                 {profile?.linkedinUrl ? (
@@ -208,7 +208,7 @@ export default function StudentDashboard() {
                     {profile.linkedinUrl}
                   </a>
                 ) : (
-                  <span style={{ color: '#E65100', fontSize: '0.82rem' }}>⚠️ Missing (Mandatory)</span>
+                  <span style={{ color: '#E65100', fontSize: '0.82rem' }}> Missing (Mandatory)</span>
                 )}
               </div>
               <div>
@@ -218,7 +218,7 @@ export default function StudentDashboard() {
                     {profile.githubUrl}
                   </a>
                 ) : (
-                  <span style={{ color: '#E65100', fontSize: '0.82rem' }}>⚠️ Missing (Mandatory)</span>
+                  <span style={{ color: '#E65100', fontSize: '0.82rem' }}> Missing (Mandatory)</span>
                 )}
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function StudentDashboard() {
                   </span>
                 ) : (
                   <span style={{ color: '#E65100', fontWeight: 600, fontSize: '0.82rem' }}>
-                    ⚠️ Missing (Mandatory)
+                    Missing (Mandatory)
                   </span>
                 )}
               </div>
@@ -250,13 +250,13 @@ export default function StudentDashboard() {
 
         <div style={{ marginTop: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <Link to={ROUTES.STUDENT_PROFILE} className="gv-btn gv-btn--primary gv-btn--sm">
-            Student Profile KYC →
+            Student Profile KYC 
           </Link>
           <Link to={ROUTES.STUDENT_APPLICATIONS} className="gv-btn gv-btn--cyan gv-btn--sm">
-            My Applications Pipeline →
+            My Applications Pipeline 
           </Link>
           <Link to={ROUTES.STUDENT_RESUME} className="gv-btn gv-btn--sage gv-btn--sm">
-            AI Resume Parser →
+            AI Resume Parser 
           </Link>
           <Link to={ROUTES.DRIVES_EXPLORER} className="gv-btn gv-btn--secondary gv-btn--sm">
             Browse Campus Drives

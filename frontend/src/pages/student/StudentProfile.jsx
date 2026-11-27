@@ -158,6 +158,9 @@ export default function StudentProfile() {
       setShowSuccess(true);
       await loadProfile();
     } catch (err) {
+      if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
+        setFieldErrors((prev) => ({ ...prev, ...err.fieldErrors }));
+      }
       setError(err.message || 'Failed to submit profile for officer verification.');
     } finally {
       setSubmittingProfile(false);
@@ -352,6 +355,9 @@ export default function StudentProfile() {
       // Invalidate cache and broadcast to all listening dashboard tabs/views
       window.dispatchEvent(new CustomEvent('student:profile-updated', { detail: updated }));
     } catch (err) {
+      if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
+        setFieldErrors((prev) => ({ ...prev, ...err.fieldErrors }));
+      }
       setError(err.message || 'Failed to update Student Profile KYC.');
     } finally {
       setSaving(false);
@@ -404,22 +410,22 @@ export default function StudentProfile() {
                     borderRadius: '4px',
                   }}
                 >
-                  ⚠️ {missingFields.length} REQUIREMENT{missingFields.length > 1 ? 'S' : ''} MISSING
+                   {missingFields.length} REQUIREMENT{missingFields.length > 1 ? 'S' : ''} MISSING
                 </span>
               )}
               {approvalStatus === 'APPROVED' && (
                 <span style={{ backgroundColor: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px' }}>
-                  ✓ OFFICER APPROVED
+                   OFFICER APPROVED
                 </span>
               )}
               {approvalStatus === 'SUBMITTED' && (
                 <span style={{ backgroundColor: '#E1F5FE', border: '1px solid #81D4FA', color: '#0277BD', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px' }}>
-                  ⏳ PENDING OFFICER REVIEW
+                   PENDING OFFICER REVIEW
                 </span>
               )}
               {approvalStatus === 'CHANGES_REQUESTED' && (
                 <span style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF9A9A', color: '#C62828', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '4px' }}>
-                  ⚠️ CHANGES REQUESTED
+                   CHANGES REQUESTED
                 </span>
               )}
             </div>
@@ -480,7 +486,7 @@ export default function StudentProfile() {
             fontSize: '0.9rem',
           }}
         >
-          <strong>⚠️ Validation Notice:</strong> {error}
+          <strong> Validation Notice:</strong> {error}
         </div>
       )}
 
@@ -497,7 +503,7 @@ export default function StudentProfile() {
                   Full Candidate Name
                 </label>
                 <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--gv-text-main)', marginTop: '2px' }}>
-                  {profile.fullName || <span style={{ color: '#E65100' }}>⚠️ Not Set</span>}
+                  {profile.fullName || <span style={{ color: '#E65100' }}> Not Set</span>}
                 </div>
               </div>
 
@@ -515,7 +521,7 @@ export default function StudentProfile() {
                   Primary Contact Number
                 </label>
                 <div style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--gv-text-main)', marginTop: '2px' }}>
-                  {profile.phone || <span style={{ color: '#E65100' }}>⚠️ Missing</span>}
+                  {profile.phone || <span style={{ color: '#E65100' }}>Missing</span>}
                 </div>
               </div>
 
@@ -621,10 +627,10 @@ export default function StudentProfile() {
                       rel="noopener noreferrer"
                       style={{ color: 'var(--gv-primary-brown)', fontWeight: 600, fontSize: '0.9rem', wordBreak: 'break-all' }}
                     >
-                      🔗 {profile.linkedinUrl}
+                       {profile.linkedinUrl}
                     </a>
                   ) : (
-                    <span style={{ color: '#E65100', fontSize: '0.88rem' }}>⚠️ Missing (Mandatory)</span>
+                    <span style={{ color: '#E65100', fontSize: '0.88rem' }}> Missing (Mandatory)</span>
                   )}
                 </div>
               </div>
@@ -641,7 +647,7 @@ export default function StudentProfile() {
                       rel="noopener noreferrer"
                       style={{ color: 'var(--gv-primary-brown)', fontWeight: 600, fontSize: '0.9rem', wordBreak: 'break-all' }}
                     >
-                      🐙 {profile.githubUrl}
+                       {profile.githubUrl}
                     </a>
                   ) : (
                     <span style={{ color: '#E65100', fontSize: '0.88rem' }}>⚠️ Missing (Mandatory)</span>
@@ -679,12 +685,12 @@ export default function StudentProfile() {
                         fontWeight: 600,
                       }}
                     >
-                      ✦ {name}
+                       {name}
                     </span>
                   );
                 })
               ) : (
-                <span style={{ color: '#E65100', fontSize: '0.88rem' }}>⚠️ No skills registered yet.</span>
+                <span style={{ color: '#E65100', fontSize: '0.88rem' }}> No skills registered yet.</span>
               )}
             </div>
           </Card>
@@ -725,7 +731,7 @@ export default function StudentProfile() {
                 ))}
               </div>
             ) : (
-              <span style={{ color: '#E65100', fontSize: '0.88rem' }}>⚠️ No projects registered yet.</span>
+              <span style={{ color: '#E65100', fontSize: '0.88rem' }}> No projects registered yet.</span>
             )}
           </Card>
 
@@ -755,7 +761,7 @@ export default function StudentProfile() {
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <Link to={ROUTES.STUDENT_RESUME} className="gv-btn gv-btn--secondary">
-                📄 AI Resume Manager
+                 AI Resume Manager
               </Link>
               <button
                 type="button"
@@ -763,7 +769,7 @@ export default function StudentProfile() {
                 onClick={handleStartEdit}
                 style={{ minWidth: '160px' }}
               >
-                ✏️ Edit Profile KYC
+                 Edit Profile KYC
               </button>
               {(approvalStatus === 'DRAFT' || approvalStatus === 'CHANGES_REQUESTED') && (
                 <button
@@ -799,14 +805,14 @@ export default function StudentProfile() {
             }}
           >
             <div>
-              <strong>✏️ Edit Mode Active:</strong> Modify your academic credentials, contact info, or web links below.
+              <strong> Edit Mode Active:</strong> Modify your academic credentials, contact info, or web links below.
             </div>
             <button
               type="button"
               className="gv-btn gv-btn--secondary gv-btn--sm"
               onClick={handleCancelEdit}
             >
-              ✖ Discard &amp; Cancel
+               Discard &amp; Cancel
             </button>
           </div>
 
@@ -816,7 +822,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.fullName && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.fullName}
+                     {fieldErrors.fullName}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="fullName">
@@ -859,7 +865,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.phone && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.phone}
+                     {fieldErrors.phone}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="phone">
@@ -905,7 +911,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.apparId && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.apparId}
+                     {fieldErrors.apparId}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="apparId">
@@ -940,7 +946,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.course && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.course}
+                    {fieldErrors.course}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="course">
@@ -966,7 +972,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.institution && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.institution}
+                     {fieldErrors.institution}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="institution">
@@ -984,7 +990,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.cgpa && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.cgpa}
+                     {fieldErrors.cgpa}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="cgpa">
@@ -1006,7 +1012,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.backlogs && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.backlogs}
+                     {fieldErrors.backlogs}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="backlogs">
@@ -1043,7 +1049,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.linkedinUrl && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.linkedinUrl}
+                     {fieldErrors.linkedinUrl}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="linkedinUrl">
@@ -1062,7 +1068,7 @@ export default function StudentProfile() {
               <div>
                 {fieldErrors.githubUrl && (
                   <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '4px' }}>
-                    ⚠️ {fieldErrors.githubUrl}
+                     {fieldErrors.githubUrl}
                   </div>
                 )}
                 <label className="gv-form-label" htmlFor="githubUrl">
@@ -1115,7 +1121,7 @@ export default function StudentProfile() {
           <Card title="Skills &amp; Interest Domains (Mandatory)">
             {fieldErrors.skills && (
               <div style={{ color: '#D32F2F', fontSize: '0.8rem', fontWeight: 600, marginBottom: '8px' }}>
-                ⚠️ {fieldErrors.skills}
+                 {fieldErrors.skills}
               </div>
             )}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
@@ -1137,7 +1143,7 @@ export default function StudentProfile() {
                 className="gv-btn gv-btn--secondary"
                 onClick={() => handleAddSkill()}
               >
-                + Add Skill
+                 Add Skill
               </button>
             </div>
 
@@ -1161,7 +1167,7 @@ export default function StudentProfile() {
                       color: 'var(--gv-primary-brown)',
                     }}
                   >
-                    + {domain}
+                     {domain}
                   </button>
                 ))}
               </div>
@@ -1191,7 +1197,7 @@ export default function StudentProfile() {
                       onClick={() => handleRemoveSkill(name)}
                       style={{ background: 'none', border: 'none', color: '#C62828', cursor: 'pointer', fontWeight: 'bold' }}
                     >
-                      ×
+                      
                     </button>
                   </span>
                 );
@@ -1228,7 +1234,7 @@ export default function StudentProfile() {
                       fontWeight: 'bold',
                     }}
                   >
-                    ×
+                    
                   </button>
                   <h4 style={{ margin: '0 0 6px', fontSize: '0.9rem', color: 'var(--gv-primary-brown)' }}>
                     {proj.title}
@@ -1245,7 +1251,7 @@ export default function StudentProfile() {
                       rel="noopener noreferrer"
                       style={{ fontSize: '0.78rem', color: 'var(--gv-portal-cyan)', fontWeight: 600 }}
                     >
-                      Project Link →
+                      Project Link 
                     </a>
                   )}
                 </div>
@@ -1280,7 +1286,7 @@ export default function StudentProfile() {
                 />
                 <div style={{ textAlign: 'right' }}>
                   <button type="button" className="gv-btn gv-btn--secondary gv-btn--sm" onClick={handleAddProject}>
-                    + Add Project to Profile
+                     Add Project to Profile
                   </button>
                 </div>
               </div>

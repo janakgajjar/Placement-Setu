@@ -117,13 +117,13 @@ export default function StudentApplications() {
       case 'SHORTLISTED':
         return (
           <span style={{ backgroundColor: '#EDE7F6', color: '#512DA8', border: '1px solid #D1C4E9', padding: '3px 8px', borderRadius: '4px', fontSize: '0.74rem', fontWeight: 700 }}>
-            ★ SHORTLISTED
+             SHORTLISTED
           </span>
         );
       case 'INTERVIEW_SCHEDULED':
         return (
           <span style={{ backgroundColor: '#E0F7FA', color: '#00838F', border: '1px solid #80DEEA', padding: '3px 8px', borderRadius: '4px', fontSize: '0.74rem', fontWeight: 700 }}>
-            🗓 INTERVIEW SCHEDULED
+             INTERVIEW SCHEDULED
           </span>
         );
       case 'SELECTED':
@@ -170,7 +170,7 @@ export default function StudentApplications() {
               <strong>{withdrawingApp.jobTitle}</strong> at <strong>{withdrawingApp.companyName}</strong>?
             </p>
             <div style={{ backgroundColor: '#FFF3E0', border: '1px solid #FFE082', padding: '12px', borderRadius: '4px', color: '#B26A00', fontSize: '0.82rem' }}>
-              ⚠️ You may re-apply before the registration deadline if you change your mind, subject to corporate eligibility criteria.
+               You may re-apply before the registration deadline if you change your mind, subject to corporate eligibility criteria.
             </div>
           </div>
         </Modal>
@@ -178,7 +178,7 @@ export default function StudentApplications() {
 
       {error && (
         <div style={{ backgroundColor: '#FFEBEE', border: '1.5px solid #EF5350', color: '#C62828', padding: '12px 16px', borderRadius: '6px', marginBottom: '20px' }}>
-          ⚠️ {error}
+           {error}
         </div>
       )}
 
@@ -308,14 +308,14 @@ export default function StudentApplications() {
                     </div>
 
                     <div style={{ marginTop: '4px', fontSize: '0.9rem', color: 'var(--gv-text-main)', fontWeight: 600 }}>
-                      🏢 {app.companyName}
+                      {app.companyName}
                     </div>
 
                     <div style={{ marginTop: '4px', fontSize: '0.82rem', color: 'var(--gv-text-subtle)', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                      <span>📍 {app.location || 'Ahmedabad, Gujarat'}</span>
-                      {app.ctc && <span>💰 ₹{app.ctc} LPA</span>}
-                      {app.stipend && <span>💵 Stipend: ₹{app.stipend}/mo</span>}
-                      <span>📅 Applied: {new Date(app.appliedAt).toLocaleDateString()}</span>
+                      <span>{app.location || 'Ahmedabad, Gujarat'}</span>
+                      {app.ctc && <span> ₹{app.ctc} LPA</span>}
+                      {app.stipend && <span> Stipend: ₹{app.stipend}/mo</span>}
+                      <span> Applied: {new Date(app.appliedAt).toLocaleDateString()}</span>
                     </div>
                   </div>
 
@@ -337,7 +337,7 @@ export default function StudentApplications() {
 
                   {isWithdrawn ? (
                     <div style={{ padding: '8px 12px', backgroundColor: '#EEEEEE', borderRadius: '4px', fontSize: '0.85rem', color: '#616161' }}>
-                      ⛔ This application was withdrawn by you. You may re-apply before the registration window closes.
+                       This application was withdrawn by you. You may re-apply before the registration window closes.
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${PIPELINE_STEPS.length}, 1fr)`, gap: '8px', position: 'relative' }}>

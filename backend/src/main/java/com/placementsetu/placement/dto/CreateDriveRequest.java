@@ -1,8 +1,10 @@
 package com.placementsetu.placement.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -46,9 +48,13 @@ public class CreateDriveRequest {
     private Short graduationYear;
 
     @NotNull(message = "Registration start date is required")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime registrationStart;
 
     @NotNull(message = "Registration end date is required")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime registrationEnd;
 
     /** Optional list of skill IDs to associate with this drive. */

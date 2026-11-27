@@ -349,7 +349,7 @@ export default function Home() {
               </h2>
             </div>
             <Link to={ROUTES.DRIVES_EXPLORER} className="gv-btn gv-btn--outline gv-btn--sm">
-              View All Drives →
+              View All Drives 
             </Link>
           </div>
 
@@ -422,7 +422,7 @@ export default function Home() {
                             border: '1px solid #FFE082',
                           }}
                         >
-                          ★ Dream Offer
+                           Dream Offer
                         </span>
                       )}
                     </div>
@@ -435,16 +435,16 @@ export default function Home() {
                     </div>
 
                     <div style={{ fontSize: '0.82rem', color: '#666', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <div>📍 Location: {drive.location || 'Gujarat'}</div>
+                      <div>Location: {drive.location || 'Gujarat'}</div>
                       <div>
-                        💰 Compensation:{' '}
+                         Compensation:{' '}
                         {drive.ctc
                           ? `₹${(Number(drive.ctc) / 100000).toFixed(1)} LPA`
                           : drive.stipend
                           ? `₹${drive.stipend}/month Stipend`
                           : 'As per industry standard'}
                       </div>
-                      <div>🎓 Min. CGPA: {drive.minimumCgpa ? `${drive.minimumCgpa} CGPA` : 'Open'}</div>
+                      <div> Min. CGPA: {drive.minimumCgpa ? `${drive.minimumCgpa} CGPA` : 'Open'}</div>
                     </div>
 
                     {drive.skills && drive.skills.length > 0 && (

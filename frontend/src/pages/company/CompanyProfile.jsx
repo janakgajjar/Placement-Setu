@@ -126,6 +126,9 @@ export default function CompanyProfile() {
       });
       setShowSuccess(true);
     } catch (err) {
+      if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
+        setFieldErrors((prev) => ({ ...prev, ...err.fieldErrors }));
+      }
       setError(err.message || 'Failed to update profile.');
     } finally {
       setSaving(false);
@@ -146,7 +149,7 @@ export default function CompanyProfile() {
 
       {error && (
         <div style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', padding: '12px', borderRadius: '4px', marginBottom: '20px' }}>
-          ⚠️ {error}
+           {error}
         </div>
       )}
 

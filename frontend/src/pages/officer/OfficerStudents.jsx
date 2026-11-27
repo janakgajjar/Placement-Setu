@@ -127,7 +127,7 @@ export default function OfficerStudents() {
 
             {changeModal.error && (
               <div style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', padding: '8px 12px', borderRadius: '4px', marginBottom: '14px', fontSize: '0.85rem' }}>
-                ⚠️ {changeModal.error}
+                 {changeModal.error}
               </div>
             )}
 
@@ -239,7 +239,7 @@ export default function OfficerStudents() {
                     onClick={() => setChangeModal({ isOpen: true, student: selectedStudent, remarks: '', error: null })}
                     disabled={actionLoading}
                   >
-                    Request Changes ✍️
+                    Request Changes 
                   </Button>
                   <Button
                     variant="sage"
@@ -281,7 +281,7 @@ export default function OfficerStudents() {
 
       {error && (
         <div style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', padding: '12px', borderRadius: '4px', marginBottom: '20px' }}>
-          ⚠️ {error}
+           {error}
         </div>
       )}
 
@@ -372,7 +372,7 @@ export default function OfficerStudents() {
                     disabled={page === 0}
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                   >
-                    ← Previous
+                     Previous
                   </Button>
                   <Button
                     size="sm"
@@ -380,7 +380,7 @@ export default function OfficerStudents() {
                     disabled={page >= totalPages - 1}
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Next →
+                    Next 
                   </Button>
                 </div>
               </div>

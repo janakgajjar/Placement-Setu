@@ -125,22 +125,43 @@ async function request(endpoint, options = {}) {
 
     if (!response.ok) {
       let message = json.message || json.error;
-      if (response.status >= 500) {
-        message = 'Server unavailable';
-      } else if (!message) {
-        message = `Request failed (${response.status})`;
+
+      // Extract field-level validation errors
+      const fieldErrors = {};
+      if (Array.isArray(json.errors)) {
+        json.errors.forEach((fe) => {
+          if (fe && fe.field) {
+            fieldErrors[fe.field] = fe.message;
+          }
+        });
       }
+      if (json.fieldErrors && typeof json.fieldErrors === 'object') {
+        Object.assign(fieldErrors, json.fieldErrors);
+      }
+
+      // If validation errors exist, surface specific field failure in message if generic
+      if (Object.keys(fieldErrors).length > 0 && (!message || message === 'Validation failed')) {
+        const firstField = Object.keys(fieldErrors)[0];
+        message = `${firstField}: ${fieldErrors[firstField]}`;
+      } else if (!message) {
+        message = response.status >= 500
+          ? 'Internal server error. Please try again.'
+          : `Request failed (${response.status})`;
+      }
+
       const err = new Error(message);
       err.status = response.status;
       err.data = json;
+      err.fieldErrors = fieldErrors;
       throw err;
     }
 
     return json;
   } catch (error) {
-    if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
-      const err = new Error('Server unavailable');
+    if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
+      const err = new Error('Server unavailable: Unable to connect to backend on ' + BASE_URL);
       err.status = 0;
+      err.fieldErrors = {};
       throw err;
     }
     throw error;

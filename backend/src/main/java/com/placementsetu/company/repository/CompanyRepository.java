@@ -42,9 +42,34 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
     @Query("""
             SELECT c FROM Company c
               JOIN com.placementsetu.user.entity.User u ON u.id = c.userId
-            WHERE (:status IS NULL OR CAST(u.accountStatus AS string) = :status)
+            WHERE u.accountStatus = :accountStatus
             """)
-    Page<Company> findAllWithStatus(@Param("status") String status, Pageable pageable);
+    Page<Company> findByAccountStatus(@Param("accountStatus") AccountStatus accountStatus, Pageable pageable);
+
+    @Query("""
+            SELECT c FROM Company c
+              JOIN com.placementsetu.user.entity.User u ON u.id = c.userId
+            WHERE u.accountStatus = :accountStatus
+              AND (LOWER(c.companyName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(c.contactPerson) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(c.gstin) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<Company> findByAccountStatusAndSearch(
+            @Param("accountStatus") AccountStatus accountStatus,
+            @Param("search") String search,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT c FROM Company c
+              JOIN com.placementsetu.user.entity.User u ON u.id = c.userId
+            WHERE (LOWER(c.companyName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(c.contactPerson) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(c.gstin) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<Company> findBySearch(@Param("search") String search, Pageable pageable);
 
     @Query("""
             SELECT c FROM Company c

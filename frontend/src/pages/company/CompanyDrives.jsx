@@ -240,7 +240,7 @@ export default function CompanyDrives() {
 
             {editError && (
               <div style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', padding: '10px 14px', borderRadius: '4px', marginBottom: '16px', fontSize: '0.85rem' }}>
-                ⚠️ {editError}
+                {editError}
               </div>
             )}
 
@@ -463,7 +463,7 @@ export default function CompanyDrives() {
 
       {error && (
         <div style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', padding: '12px', borderRadius: '4px', marginBottom: '20px' }}>
-          ⚠️ {error}
+           {error}
         </div>
       )}
 
@@ -548,7 +548,7 @@ export default function CompanyDrives() {
                               }}
                               title="View students ranked by skill & eligibility match for this drive"
                             >
-                              Candidates 🎯
+                              Candidates 
                             </Link>
 
                             {(d.status === 'DRAFT' || d.status === 'REJECTED') && (
@@ -557,7 +557,7 @@ export default function CompanyDrives() {
                                 variant="outline"
                                 onClick={() => openEditModal(d)}
                               >
-                                Edit ✏️
+                                Edit 
                               </Button>
                             )}
 
@@ -573,7 +573,7 @@ export default function CompanyDrives() {
                                   message: 'Are you sure you want to submit this placement drive for review by the Gujarat Vidyapith Placement Office?'
                                 })}
                               >
-                                Submit →
+                                Submit 
                               </Button>
                             )}
 
@@ -589,7 +589,7 @@ export default function CompanyDrives() {
                                   message: 'Have you addressed the rejection remarks? Submitting will queue the drive for re-evaluation.'
                                 })}
                               >
-                                Resubmit ⟳
+                                Resubmit 
                               </Button>
                             )}
 
@@ -636,7 +636,7 @@ export default function CompanyDrives() {
                                   message: 'Are you sure you want to delete this placement drive? This action cannot be undone.'
                                 })}
                               >
-                                🗑️ Delete
+                                 Delete
                               </button>
                             )}
                           </div>
@@ -669,7 +669,7 @@ export default function CompanyDrives() {
                     disabled={page === 0}
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                   >
-                    ← Previous
+                    Previous
                   </Button>
                   <Button
                     size="sm"
@@ -677,7 +677,7 @@ export default function CompanyDrives() {
                     disabled={page >= totalPages - 1}
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Next →
+                    Next 
                   </Button>
                 </div>
               </div>

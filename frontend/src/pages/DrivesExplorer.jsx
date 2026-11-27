@@ -293,14 +293,14 @@ export default function DrivesExplorer() {
             {/* Bylaw / Lock Alert */}
             {isOneStudentLockActive ? (
               <div style={{ backgroundColor: '#FFEBEE', border: '1.5px solid #EF5350', color: '#C62828', padding: '12px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.84rem' }}>
-                <strong>⛔ Application Locked by Placement Bylaws:</strong>
+                <strong> Application Locked by Placement Bylaws:</strong>
                 <p style={{ margin: '4px 0 0' }}>
                   You have already secured a placement offer. Under Gujarat Vidyapith's "One Student One Job" rule, secondary applications are locked unless applying to a verified <strong>Dream Offer (≥ ₹8.0 LPA)</strong>.
                 </p>
               </div>
             ) : selectedDrive.isDreamOffer ? (
               <div style={{ backgroundColor: '#FFF8E1', border: '1px solid #FFE082', color: '#B26A00', padding: '10px 12px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.82rem' }}>
-                ⭐ <strong>Dream Offer Opportunity:</strong> This drive offers ₹8+ LPA and is exempt from standard placement locks.
+                 <strong>Dream Offer Opportunity:</strong> This drive offers ₹8+ LPA and is exempt from standard placement locks.
               </div>
             ) : null}
 
@@ -384,7 +384,7 @@ export default function DrivesExplorer() {
                       gap: '4px',
                     }}
                   >
-                    <span>⚠️</span>
+                    <span></span>
                     <span>{searchError}</span>
                   </div>
                 )}
@@ -438,7 +438,7 @@ export default function DrivesExplorer() {
                             fontWeight: 700,
                           }}
                         >
-                          ⭐ Dream Offer
+                           Dream Offer
                         </span>
                       )}
                     </div>
@@ -497,7 +497,7 @@ export default function DrivesExplorer() {
                           onClick={() => navigate(ROUTES.OFFICER_DASHBOARD)}
                           title="Review drives in Placement Officer Desk"
                         >
-                          Officer Desk →
+                          Officer Desk 
                         </button>
                       ) : isAuthenticated && user?.role === 'COMPANY' ? (
                         <button
@@ -506,7 +506,7 @@ export default function DrivesExplorer() {
                           onClick={() => navigate(ROUTES.COMPANY_DRIVES)}
                           title="Manage company drives"
                         >
-                          Manage Drives →
+                          Manage Drives 
                         </button>
                       ) : isApplied ? (
                         <span
@@ -523,7 +523,7 @@ export default function DrivesExplorer() {
                             gap: '4px',
                           }}
                         >
-                          ✓ Applied
+                         Applied
                         </span>
                       ) : (
                         <button
@@ -531,7 +531,7 @@ export default function DrivesExplorer() {
                           className="gv-btn gv-btn--primary gv-btn--sm"
                           onClick={() => handleApplyClick(drive)}
                         >
-                          Apply via Portal →
+                          Apply via Portal 
                         </button>
                       )}
                     </div>

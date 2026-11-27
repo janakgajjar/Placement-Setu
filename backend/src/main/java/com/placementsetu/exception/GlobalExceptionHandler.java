@@ -2,14 +2,17 @@ package com.placementsetu.exception;
 
 import com.placementsetu.common.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
  * { success, message, errors } envelope so the frontend never has to
  * special-case error shapes per endpoint.
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,11 +31,33 @@ public class GlobalExceptionHandler {
         List<ApiResponse.FieldError> errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> new ApiResponse.FieldError(fe.getField(), fe.getDefaultMessage()))
                 .collect(Collectors.toList());
-        return ResponseEntity.badRequest().body(ApiResponse.error("Validation failed", errors));
+        String summary = errors.isEmpty() ? "Validation failed" : errors.get(0).getMessage();
+        return ResponseEntity.badRequest().body(ApiResponse.error(summary, errors));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException ex) {
+        return ResponseEntity.badRequest().body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(HttpMessageNotReadableException ex) {
+        Throwable root = ex.getMostSpecificCause();
+        String message = (root != null && root.getMessage() != null)
+                ? "Invalid request format: " + root.getMessage()
+                : "Invalid request payload format. Please check date, time, and numerical fields.";
+        log.warn("Malformed HTTP request: {}", message);
+        return ResponseEntity.badRequest().body(ApiResponse.error(message));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String msg = String.format("Invalid parameter '%s': '%s'", ex.getName(), ex.getValue());
+        return ResponseEntity.badRequest().body(ApiResponse.error(msg));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ApiResponse.error(ex.getMessage()));
     }
 
@@ -69,6 +95,8 @@ public class GlobalExceptionHandler {
                 msg = "This APAAR / ABC ID is already registered to another student profile.";
             } else if (exMsg.contains("email")) {
                 msg = "An account with this email address already exists.";
+            } else if (exMsg.contains("gstin")) {
+                msg = "A company with this GSTIN is already registered.";
             }
         }
         return ResponseEntity.badRequest().body(ApiResponse.error(msg));
@@ -76,7 +104,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
+        log.error("Unhandled internal server exception: ", ex);
+        String msg = ex.getMessage();
+        if (msg == null || msg.isBlank()) {
+            msg = "An unexpected error occurred. Please try again later.";
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An unexpected error occurred. Please try again later."));
+                .body(ApiResponse.error(msg));
     }
 }

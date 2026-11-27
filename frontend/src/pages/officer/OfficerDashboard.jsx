@@ -83,7 +83,7 @@ export default function OfficerDashboard() {
           </div>
         ) : (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--gv-text-subtle)' }}>
-            ✓ All corporate registrations have been reviewed. No pending approvals at this time.
+             All corporate registrations have been reviewed. No pending approvals at this time.
           </div>
         )}
 
@@ -98,7 +98,7 @@ export default function OfficerDashboard() {
             View All Corporate Partners
           </Link>
           <Link to={ROUTES.ADMIN_AUDIT_LOGS} className="gv-btn gv-btn--outline gv-btn--sm">
-            System Audit Trail 📋
+            System Audit Trail 
           </Link>
         </div>
       </Card>

@@ -49,14 +49,12 @@ export default function CompanyDashboard() {
         <StatCard
           label="Total Drives Created"
           value={drives.length}
-          icon="📢"
           color="var(--gv-primary-brown)"
         />
 
         <StatCard
           label="Published &amp; Active"
           value={publishedCount}
-          icon="🟢"
           subtext="Accepting candidate applications"
           color="var(--gv-sage-green-dark)"
         />
@@ -64,7 +62,6 @@ export default function CompanyDashboard() {
         <StatCard
           label="Draft Openings"
           value={draftCount}
-          icon="📝"
           subtext="Ready for publishing"
           color="var(--gv-warm-taupe)"
         />
@@ -72,7 +69,6 @@ export default function CompanyDashboard() {
         <StatCard
           label="GSTIN Accreditation"
           value={profile?.gstin ? 'Verified' : 'Pending'}
-          icon="🏛️"
           subtext={profile?.gstin || 'Gujarat Vidyapith Compliance'}
           color="var(--gv-portal-cyan-dark)"
         />

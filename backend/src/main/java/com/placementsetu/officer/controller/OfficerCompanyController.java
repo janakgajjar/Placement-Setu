@@ -54,12 +54,13 @@ public class OfficerCompanyController {
     // GET /api/v1/placement-officers/me/companies
     // ─────────────────────────────────────────────────────────────────────────
 
-    @Operation(summary = "List all companies with pagination and optional account-status filter")
+    @Operation(summary = "List all companies with pagination and optional account-status and search filters")
     @GetMapping
     public ApiResponse<Page<CompanyProfileResponse>> getCompanies(
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search,
             @PageableDefault(size = 20, sort = "companyName") Pageable pageable) {
-        Page<CompanyProfileResponse> page = officerCompanyService.getCompanies(status, pageable);
+        Page<CompanyProfileResponse> page = officerCompanyService.getCompanies(status, search, pageable);
         return ApiResponse.success("Companies fetched successfully", page);
     }
 

@@ -72,7 +72,8 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         drive = driveRepository.save(drive);
 
         if (auditService != null) {
-            auditService.logEvent(companyId, "DRIVE_CREATED", "PLACEMENT_DRIVE", drive.getId(),
+            UUID userId = resolveUserIdForCompany(companyId);
+            auditService.logEvent(userId, "DRIVE_CREATED", "PLACEMENT_DRIVE", drive.getId(),
                     java.util.Map.of("jobTitle", drive.getJobTitle(), "status", drive.getStatus().name()));
         }
 
@@ -155,7 +156,8 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         drive = driveRepository.save(drive);
 
         if (auditService != null) {
-            auditService.logEvent(companyId, "DRIVE_UPDATED", "PLACEMENT_DRIVE", drive.getId(),
+            UUID userId = resolveUserIdForCompany(companyId);
+            auditService.logEvent(userId, "DRIVE_UPDATED", "PLACEMENT_DRIVE", drive.getId(),
                     java.util.Map.of("jobTitle", drive.getJobTitle(), "status", drive.getStatus().name()));
         }
 
@@ -201,7 +203,8 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         final PlacementDrive submittedDrive = driveRepository.save(drive);
 
         if (auditService != null) {
-            auditService.logEvent(companyId, "DRIVE_SUBMITTED_FOR_APPROVAL", "PLACEMENT_DRIVE", submittedDrive.getId(),
+            UUID userId = resolveUserIdForCompany(companyId);
+            auditService.logEvent(userId, "DRIVE_SUBMITTED_FOR_APPROVAL", "PLACEMENT_DRIVE", submittedDrive.getId(),
                     java.util.Map.of("jobTitle", submittedDrive.getJobTitle(), "status", submittedDrive.getStatus().name()));
         }
 
@@ -232,7 +235,8 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         final PlacementDrive closedDrive = driveRepository.save(drive);
 
         if (auditService != null) {
-            auditService.logEvent(companyId, "DRIVE_CLOSED", "PLACEMENT_DRIVE", closedDrive.getId(),
+            UUID userId = resolveUserIdForCompany(companyId);
+            auditService.logEvent(userId, "DRIVE_CLOSED", "PLACEMENT_DRIVE", closedDrive.getId(),
                     java.util.Map.of("jobTitle", closedDrive.getJobTitle()));
         }
 
@@ -254,7 +258,8 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
         driveRepository.delete(drive);
 
         if (auditService != null) {
-            auditService.logEvent(companyId, "DRIVE_DELETED", "PLACEMENT_DRIVE", driveId,
+            UUID userId = resolveUserIdForCompany(companyId);
+            auditService.logEvent(userId, "DRIVE_DELETED", "PLACEMENT_DRIVE", driveId,
                     java.util.Map.of("jobTitle", drive.getJobTitle()));
         }
     }
@@ -262,6 +267,13 @@ public class PlacementDriveServiceImpl implements PlacementDriveService {
     // ─────────────────────────────────────────────────────────────────────────
     // Internal helpers
     // ─────────────────────────────────────────────────────────────────────────
+
+    private UUID resolveUserIdForCompany(UUID companyId) {
+        if (companyId == null) return null;
+        return companyRepository.findById(companyId)
+                .map(com.placementsetu.company.entity.Company::getUserId)
+                .orElse(null);
+    }
 
     private PlacementDrive requireOwnedDrive(UUID companyId, UUID driveId) {
         return driveRepository.findByIdAndCompanyId(driveId, companyId)

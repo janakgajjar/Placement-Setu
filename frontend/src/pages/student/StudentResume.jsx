@@ -85,7 +85,7 @@ export default function StudentResume() {
 
       {error && (
         <div style={{ backgroundColor: '#FFEBEE', border: '1px solid #EF5350', color: '#C62828', padding: '12px', borderRadius: '4px', marginBottom: '20px' }}>
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
@@ -100,7 +100,7 @@ export default function StudentResume() {
           }}
         >
           <strong style={{ color: '#2E7D32', fontSize: '0.95rem' }}>
-            ✓ AI Profile Auto-Fill Completed
+             AI Profile Auto-Fill Completed
           </strong>
           <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#1B5E20' }}>
             Auto-populated from resume: <strong>{autoFilledFields.join(', ')}</strong>.
@@ -128,7 +128,7 @@ export default function StudentResume() {
                 marginBottom: '20px',
               }}
             >
-              <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>📄</div>
+              <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}></div>
               <input
                 type="file"
                 accept=".pdf,.docx,.txt"
@@ -143,7 +143,7 @@ export default function StudentResume() {
             </div>
 
             <Button type="submit" variant="primary" fullWidth loading={uploading}>
-              Upload &amp; Analyze with Gemini AI →
+              Upload &amp; Analyze with Gemini AI 
             </Button>
           </form>
         </Card>
@@ -153,7 +153,7 @@ export default function StudentResume() {
           {resume ? (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <span style={{ fontSize: '1.8rem' }}>📑</span>
+                <span style={{ fontSize: '1.8rem' }}></span>
                 <div>
                   <strong style={{ fontSize: '1rem', color: 'var(--gv-primary-brown)' }}>
                     {resume.fileName || 'Curriculum Vitae'}
@@ -169,13 +169,13 @@ export default function StudentResume() {
                   Processing Status:
                 </h4>
                 <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--gv-sage-green-dark)' }}>
-                  ✓ {resume.processingStatus || 'COMPLETED'}
+                   {resume.processingStatus || 'COMPLETED'}
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <Link to={ROUTES.STUDENT_PROFILE} className="gv-btn gv-btn--primary gv-btn--sm">
-                  View Student Profile KYC →
+                  View Student Profile KYC 
                 </Link>
                 <Link to={ROUTES.DRIVES_EXPLORER} className="gv-btn gv-btn--secondary gv-btn--sm">
                   Apply for Drives
@@ -184,7 +184,7 @@ export default function StudentResume() {
             </div>
           ) : (
             <div style={{ padding: '30px 20px', textAlign: 'center', color: 'var(--gv-text-subtle)' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📂</div>
+              <div style={{ fontSize: '2rem', marginBottom: '8px' }}></div>
               <p>No active resume on file. Upload a document to unlock corporate visibility.</p>
             </div>
           )}

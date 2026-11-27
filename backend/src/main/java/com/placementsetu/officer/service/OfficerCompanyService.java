@@ -20,10 +20,14 @@ public interface OfficerCompanyService {
     CompanyProfileResponse provisionCompany(ProvisionCompanyRequest request);
 
     /**
-     * Paginated list of all companies, with optional status filter.
+     * Paginated list of all companies, with optional status and search filters.
      * GET /api/v1/placement-officers/me/companies
      */
-    Page<CompanyProfileResponse> getCompanies(String status, Pageable pageable);
+    Page<CompanyProfileResponse> getCompanies(String status, String search, Pageable pageable);
+
+    default Page<CompanyProfileResponse> getCompanies(String status, Pageable pageable) {
+        return getCompanies(status, null, pageable);
+    }
 
     /**
      * View a single company.

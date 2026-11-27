@@ -548,7 +548,7 @@ export default function OfficerCompanies() {
           }}
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <span>➕</span>
+          <span></span>
           <span>Add / Provision Company</span>
         </Button>
       </div>
@@ -624,7 +624,7 @@ export default function OfficerCompanies() {
               }}
               title="Clear search"
             >
-              ✕
+              
             </button>
           )}
         </div>
@@ -649,7 +649,7 @@ export default function OfficerCompanies() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>⚠️</span>
+              <span></span>
               <span>{error}</span>
             </div>
             <button
@@ -663,19 +663,19 @@ export default function OfficerCompanies() {
                 whiteSpace: 'nowrap',
               }}
             >
-              🔄 Retry
+               Retry
             </button>
           </div>
         )}
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--gv-text-subtle)' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>⏳</div>
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}></div>
             <div>Loading corporate partners directory...</div>
           </div>
         ) : companies.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 16px', color: 'var(--gv-text-subtle)' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🏢</div>
+            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}></div>
             <h4 style={{ color: 'var(--gv-primary)', marginBottom: '6px' }}>No Recruiters Found</h4>
             <p style={{ fontSize: '0.9rem', maxWidth: '420px', margin: '0 auto 18px auto' }}>
               {search
@@ -783,7 +783,7 @@ export default function OfficerCompanies() {
                             title="Edit Company Details"
                             style={{ padding: '4px 8px', fontSize: '0.78rem' }}
                           >
-                            ✏️ Edit
+                             Edit
                           </button>
                           <button
                             type="button"
@@ -792,7 +792,7 @@ export default function OfficerCompanies() {
                             title="Reset Temporary Password"
                             style={{ padding: '4px 8px', fontSize: '0.78rem' }}
                           >
-                            🔑 Pwd
+                             Pwd
                           </button>
                           {c.accountStatus === 'ACTIVE' ? (
                             <button
@@ -809,7 +809,7 @@ export default function OfficerCompanies() {
                                 border: '1px solid #FFE0B2',
                               }}
                             >
-                              ⏸ Deactivate
+                               Deactivate
                             </button>
                           ) : (
                             <button
@@ -826,7 +826,7 @@ export default function OfficerCompanies() {
                                 border: '1px solid #C8E6C9',
                               }}
                             >
-                              ▶ Activate
+                               Activate
                             </button>
                           )}
                           <button
@@ -842,7 +842,7 @@ export default function OfficerCompanies() {
                               border: '1px solid #FFCDD2',
                             }}
                           >
-                            🗑
+                            
                           </button>
                         </div>
                       </td>
@@ -952,7 +952,7 @@ export default function OfficerCompanies() {
                     border: '1px solid #EF9A9A',
                   }}
                 >
-                  ⚠️ {provisionErrors.form}
+                   {provisionErrors.form}
                 </div>
               )}
 
@@ -1160,7 +1160,7 @@ export default function OfficerCompanies() {
                 }}
                 aria-hidden="true"
               >
-                ✓
+                
               </div>
 
               <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--gv-primary, #563828)', marginBottom: '8px' }}>
@@ -1209,7 +1209,7 @@ export default function OfficerCompanies() {
               </div>
 
               <p style={{ fontSize: '0.8rem', color: '#E65100', marginBottom: '20px', backgroundColor: '#FFF3E0', padding: '8px', borderRadius: '4px' }}>
-                ⚠️ The recruiter will be required to change this temporary password upon first login.
+                 The recruiter will be required to change this temporary password upon first login.
               </p>
 
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -1222,7 +1222,7 @@ export default function OfficerCompanies() {
                     )
                   }
                 >
-                  {copied ? 'Copied! ✓' : '📋 Copy Credentials'}
+                  {copied ? 'Copied! ✓' : ' Copy Credentials'}
                 </Button>
                 <Button
                   type="button"
@@ -1280,7 +1280,7 @@ export default function OfficerCompanies() {
                   onClick={() => setEditingCompany(null)}
                   style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#666' }}
                 >
-                  ✕
+                  
                 </button>
               </div>
 
@@ -1296,7 +1296,7 @@ export default function OfficerCompanies() {
                     marginBottom: '16px',
                   }}
                 >
-                  ⚠️ {editErrors.form}
+                   {editErrors.form}
                 </div>
               )}
 
@@ -1449,7 +1449,7 @@ export default function OfficerCompanies() {
                       margin: '0 auto 12px auto',
                     }}
                   >
-                    ✓
+                    
                   </div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--gv-primary, #563828)', marginBottom: '8px' }}>
                     Password Reset Successful
@@ -1511,7 +1511,7 @@ export default function OfficerCompanies() {
                         marginBottom: '14px',
                       }}
                     >
-                      ⚠️ {resetErrors.form}
+                       {resetErrors.form}
                     </div>
                   )}
 

@@ -167,7 +167,7 @@ export default function CompanyApprovals() {
                     border: '1px solid #FFCDD2',
                   }}
                 >
-                  ⚠️ {rejectError}
+                   {rejectError}
                 </div>
               )}
 
@@ -209,7 +209,7 @@ export default function CompanyApprovals() {
                   loading={actionLoading}
                   disabled={actionLoading}
                 >
-                  Confirm Rejection ✕
+                  Confirm Rejection 
                 </Button>
               </div>
             </form>
@@ -237,7 +237,7 @@ export default function CompanyApprovals() {
             gap: '8px',
           }}
         >
-          <span>📋 Pending Placement Drives</span>
+          <span> Pending Placement Drives</span>
           {pendingDrives.length > 0 && (
             <span
               style={{
@@ -272,7 +272,7 @@ export default function CompanyApprovals() {
             gap: '8px',
           }}
         >
-          <span>🏢 Pending Company Registrations</span>
+          <span> Pending Company Registrations</span>
           {companies.length > 0 && (
             <span
               style={{
@@ -323,10 +323,10 @@ export default function CompanyApprovals() {
                             {d.jobTitle}
                           </strong>
                           <div style={{ fontSize: '0.82rem', color: '#555', marginTop: '2px' }}>
-                            🏢 {d.companyName || 'Corporate Partner'}
+                             {d.companyName || 'Corporate Partner'}
                           </div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--gv-text-subtle, #777)' }}>
-                            📍 {d.location || 'Gujarat'}
+                             {d.location || 'Gujarat'}
                           </div>
                         </td>
                         <td>
@@ -363,7 +363,7 @@ export default function CompanyApprovals() {
                               onClick={() => handleApproveDrive(d)}
                               disabled={actionLoading}
                             >
-                              Approve &amp; Publish ✓
+                              Approve &amp; Publish 
                             </Button>
                             <Button
                               size="sm"
@@ -372,7 +372,7 @@ export default function CompanyApprovals() {
                               onClick={() => openRejectDriveModal(d)}
                               disabled={actionLoading}
                             >
-                              Reject ✕
+                              Reject 
                             </Button>
                           </div>
                         </td>
@@ -381,7 +381,7 @@ export default function CompanyApprovals() {
                   ) : (
                     <tr>
                       <td colSpan="6" style={{ textAlign: 'center', padding: '35px', color: 'var(--gv-text-subtle, #777)' }}>
-                        ✓ No pending drives awaiting officer approval. All company submissions are up to date.
+                         No pending drives awaiting officer approval. All company submissions are up to date.
                       </td>
                     </tr>
                   )}

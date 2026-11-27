@@ -76,12 +76,38 @@ public class OfficerCompanyServiceImpl implements OfficerCompanyService {
     @Override
     @Transactional(readOnly = true)
     public Page<CompanyProfileResponse> getCompanies(String status, Pageable pageable) {
-        return companyRepository.findAllWithStatus(status, pageable)
-                .map(company -> {
-                    User user = userRepository.findById(company.getUserId())
-                            .orElseThrow(() -> new ResourceNotFoundException("User not found for company"));
-                    return toResponse(company, user);
-                });
+        return getCompanies(status, null, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CompanyProfileResponse> getCompanies(String status, String search, Pageable pageable) {
+        AccountStatus accountStatus = null;
+        if (status != null && !status.isBlank() && !status.equalsIgnoreCase("ALL")) {
+            try {
+                accountStatus = AccountStatus.valueOf(status.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+        boolean hasSearch = (search != null && !search.isBlank());
+        String cleanSearch = hasSearch ? search.trim() : null;
+
+        Page<Company> page;
+        if (accountStatus != null && hasSearch) {
+            page = companyRepository.findByAccountStatusAndSearch(accountStatus, cleanSearch, pageable);
+        } else if (accountStatus != null) {
+            page = companyRepository.findByAccountStatus(accountStatus, pageable);
+        } else if (hasSearch) {
+            page = companyRepository.findBySearch(cleanSearch, pageable);
+        } else {
+            page = companyRepository.findAll(pageable);
+        }
+
+        return page.map(company -> {
+            User user = userRepository.findById(company.getUserId()).orElse(null);
+            return toResponse(company, user);
+        });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -199,13 +225,15 @@ public class OfficerCompanyServiceImpl implements OfficerCompanyService {
     private CompanyProfileResponse toResponse(Company company, User user) {
         return CompanyProfileResponse.builder()
                 .id(company.getId())
+                .userId(company.getUserId())
                 .companyName(company.getCompanyName())
-                .email(user.getEmail())
+                .contactPerson(company.getContactPerson())
+                .email(user != null ? user.getEmail() : "N/A")
                 .gstin(company.getGstin())
                 .phone(company.getPhone())
                 .website(company.getWebsite())
                 .address(company.getAddress())
-                .accountStatus(user.getAccountStatus())
+                .accountStatus(user != null ? user.getAccountStatus() : AccountStatus.PENDING)
                 .build();
     }
 }

@@ -136,7 +136,9 @@ export default function RegisterStudentPage() {
       const data = err.data || err.response?.data || {};
 
       // Map backend field errors
-      if (data.fieldErrors?.length) {
+      if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
+        setFieldErrors((prev) => ({ ...prev, ...err.fieldErrors }));
+      } else if (data.fieldErrors?.length) {
         const mapped = {};
         data.fieldErrors.forEach((fe) => {
           mapped[fe.field] = fe.message;
@@ -150,8 +152,8 @@ export default function RegisterStudentPage() {
         setFieldErrors((prev) => ({ ...prev, ...mapped }));
       }
 
-      if (err.message?.includes('Server unavailable') || status === 0 || status >= 500) {
-        setServerError('Server is currently unavailable. Please try again later.');
+      if (status === 0 || err.message?.includes('Unable to connect')) {
+        setServerError('Server is currently unavailable. Please verify backend is running.');
       } else if (err.message?.toLowerCase().includes('already exists') || data.message?.toLowerCase().includes('already exists')) {
         setFieldErrors((prev) => ({ ...prev, email: 'An account with this institutional email already exists' }));
       } else {
