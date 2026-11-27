@@ -87,10 +87,26 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new BadRequestException("The registration deadline for this drive has passed");
         }
 
-        if (!profileValidationService.isProfileComplete(profile)
-                || !profileValidationService.hasCompletedResumeUpload(profile)
-                || profile.getApprovalStatus() != ProfileApprovalStatus.APPROVED) {
-            throw new BadRequestException("Your student profile must be complete, approved by a Placement Officer, and have a processed resume before applying.");
+        if (!profileValidationService.isProfileComplete(profile)) {
+            List<String> missing = profileValidationService.missingFields(profile);
+            throw new BadRequestException("Your student profile is incomplete. Please complete mandatory fields: " + String.join(", ", missing));
+        }
+
+        if (!profileValidationService.hasCompletedResumeUpload(profile)) {
+            throw new BadRequestException("You must upload a resume and wait for processing to complete in the My Resume section before applying.");
+        }
+
+        if (profile.getApprovalStatus() == ProfileApprovalStatus.DRAFT) {
+            throw new BadRequestException("Your profile is in DRAFT status. Please open your Profile page and click 'Submit Profile for Verification'.");
+        }
+
+        if (profile.getApprovalStatus() == ProfileApprovalStatus.SUBMITTED) {
+            throw new BadRequestException("Your profile is currently pending review by the Placement Officer. It must be approved before you can apply.");
+        }
+
+        if (profile.getApprovalStatus() == ProfileApprovalStatus.CHANGES_REQUESTED) {
+            String remarks = profile.getReviewRemarks() != null ? " (" + profile.getReviewRemarks() + ")" : "";
+            throw new BadRequestException("The Placement Officer has requested changes on your profile" + remarks + ". Please update and re-submit.");
         }
 
         List<String> candidateSkills = studentSkillRepository.findByStudentProfileId(profile.getId()).stream()

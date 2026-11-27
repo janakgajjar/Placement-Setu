@@ -274,7 +274,7 @@ export default function Home() {
           >
             {/* Feature 1 */}
             <div className="gv-card" style={{ borderTop: '4px solid var(--gv-primary, #563828)' }}>
-              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}>📄</div>
+              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}></div>
               <h3 className="gv-card__title" style={{ fontSize: '1.15rem', marginBottom: '8px' }}>
                 AI-Powered Resume Parsing
               </h3>
@@ -286,7 +286,7 @@ export default function Home() {
 
             {/* Feature 2 */}
             <div className="gv-card" style={{ borderTop: '4px solid var(--gv-sage-green, #7D8A58)' }}>
-              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}>👤</div>
+              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}></div>
               <h3 className="gv-card__title" style={{ fontSize: '1.15rem', marginBottom: '8px' }}>
                 Auto-Generated Student Profiles
               </h3>
@@ -298,7 +298,7 @@ export default function Home() {
 
             {/* Feature 3 */}
             <div className="gv-card" style={{ borderTop: '4px solid var(--gv-portal-cyan, #17A2B8)' }}>
-              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}>🏢</div>
+              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}></div>
               <h3 className="gv-card__title" style={{ fontSize: '1.15rem', marginBottom: '8px' }}>
                 Audited Recruiter Placement Drives
               </h3>
@@ -310,7 +310,7 @@ export default function Home() {
 
             {/* Feature 4 */}
             <div className="gv-card" style={{ borderTop: '4px solid #B8860B' }}>
-              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}>📊</div>
+              <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}></div>
               <h3 className="gv-card__title" style={{ fontSize: '1.15rem', marginBottom: '8px' }}>
                 End-to-End Application Tracking
               </h3>
@@ -562,7 +562,7 @@ export default function Home() {
                       margin: '0 auto 12px',
                     }}
                   >
-                    🏢
+                    
                   </div>
                   <h4 style={{ fontSize: '1rem', color: 'var(--gv-primary, #563828)', marginBottom: '4px', fontWeight: 700 }}>
                     {c.companyName}
