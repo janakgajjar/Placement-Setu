@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import InstitutionalTopBar from '../components/layout/InstitutionalTopBar';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import SocialPill from '../components/layout/SocialPill';
 import { INSTITUTION } from '../lib/constants';
 import { ROUTES } from '../lib/routes';
 

@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom';
 import InstitutionalTopBar from './InstitutionalTopBar';
 import Header from './Header';
 import Footer from './Footer';
-import SocialPill from './SocialPill';
 
 /**
  * PublicLayout: Wraps all public visitor-facing institutional pages
@@ -13,7 +12,6 @@ export default function PublicLayout() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#FAF6F5' }}>
       <InstitutionalTopBar />
       <Header />
-      <SocialPill />
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Outlet />
       </main>

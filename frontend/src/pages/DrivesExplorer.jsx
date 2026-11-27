@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import InstitutionalTopBar from '../components/layout/InstitutionalTopBar';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import SocialPill from '../components/layout/SocialPill';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
 import { useAuth } from '../context/AuthContext';
