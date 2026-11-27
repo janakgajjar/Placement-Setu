@@ -967,7 +967,6 @@ export default function OfficerCompanies() {
                   onChange={handleProvisionChange('companyName')}
                   placeholder="e.g. Tata Consultancy Services"
                   error={provisionErrors.companyName}
-                  helpText="Registered enterprise name (2-100 characters)"
                 />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -983,7 +982,6 @@ export default function OfficerCompanies() {
                     onChange={handleProvisionChange('email')}
                     placeholder="campus@company.com"
                     error={provisionErrors.email}
-                    helpText="Valid corporate HR email format"
                   />
 
                   <FormField
@@ -1003,7 +1001,6 @@ export default function OfficerCompanies() {
                     onChange={handleProvisionChange('contactPerson')}
                     placeholder="e.g. Ramesh Patel"
                     error={provisionErrors.contactPerson}
-                    helpText="Letters and spaces only (max 50 chars)"
                   />
                 </div>
 
@@ -1027,7 +1024,6 @@ export default function OfficerCompanies() {
                     onChange={handleProvisionChange('phone')}
                     placeholder="10-digit mobile number"
                     error={provisionErrors.phone}
-                    helpText="Exactly 10 digits (e.g. 9876543210)"
                   />
 
                   <FormField
@@ -1039,7 +1035,6 @@ export default function OfficerCompanies() {
                     onChange={handleProvisionChange('gstin')}
                     placeholder="24AAAAA0000A1Z5"
                     error={provisionErrors.gstin}
-                    helpText="15-character Indian GST format (Optional)"
                   />
                 </div>
 
@@ -1053,7 +1048,6 @@ export default function OfficerCompanies() {
                   onChange={handleProvisionChange('website')}
                   placeholder="https://www.company.com"
                   error={provisionErrors.website}
-                  helpText="Optional (e.g. https://www.company.com)"
                 />
 
                 <FormField
@@ -1077,7 +1071,6 @@ export default function OfficerCompanies() {
                   onChange={handleProvisionChange('temporaryPassword')}
                   placeholder="Leave blank to auto-generate (e.g. Gv@abc12)"
                   error={provisionErrors.temporaryPassword}
-                  helpText="If blank, system generates a secure password. Recruiter must change on first login."
                 />
 
                 <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
